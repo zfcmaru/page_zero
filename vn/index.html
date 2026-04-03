@@ -81,19 +81,140 @@
       pointer-events: none;
     }
 
-    /* ── CENA VN ───────────────────────────────────────────────── */
+    /* ── CENA VN — HUD LAYOUT ──────────────────────────────────── */
     #vn-scene {
       position: absolute;
       inset: 0;
       display: none;
+      flex-direction: column;
       opacity: 0;
       transition: opacity 0.6s ease;
+      background: #0f0720;
+      /* HUD custom properties */
+      --hud-bg:      #0f0720;
+      --hud-border:  #5a35ab;
+      --hud-accent:  #7a4fc0;
+      --hud-green:   #39ff14;
+      --hud-yellow:  #f5c518;
+      --hud-red:     #e63535;
+      --hud-mercury: #cc2222;
+      --hud-text:    #d0c8ff;
+    }
+
+    /* HUD row */
+    #hud-row {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      border-bottom: 2px solid var(--hud-border);
+    }
+
+    /* ── PAINEL ESQUERDO ────────────────────────────────────────── */
+    #hud-left {
+      width: 22%;
+      min-width: 130px;
+      background: var(--hud-bg);
+      border-right: 2px solid var(--hud-border);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 8px;
+    }
+
+    #hud-portrait {
+      width: 100%;
+      aspect-ratio: 1;
+      background: #08031a;
+      border: 2px solid var(--hud-border);
+      flex-shrink: 0;
+    }
+
+    .hud-monitor {
+      background: #020e04;
+      border: 2px solid var(--hud-border);
+      padding: 4px 6px;
+      flex-shrink: 0;
+    }
+
+    .monitor-label {
+      font-family: monospace;
+      font-size: 0.6rem;
+      color: var(--hud-green);
+      margin-bottom: 2px;
+    }
+
+    .monitor-val { color: #fff; }
+
+    .monitor-wave {
+      display: block;
+      width: 100%;
+      height: 40px;
+    }
+
+    .wave-line {
+      fill: none;
+      stroke: var(--hud-green);
+      stroke-width: 1.5;
+    }
+
+    #hud-controls {
+      display: flex;
+      gap: 8px;
+      margin-top: auto;
+      align-items: flex-end;
+    }
+
+    #hud-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .hud-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      cursor: default;
+      flex-shrink: 0;
+    }
+
+    .hud-btn--yellow { background: var(--hud-yellow); }
+    .hud-btn--red    { background: var(--hud-red); }
+
+    #hud-bars {
+      display: flex;
+      gap: 4px;
+      align-items: flex-end;
+      flex: 1;
+    }
+
+    .hud-bar-track {
+      flex: 1;
+      height: 60px;
+      background: #1a0a2e;
+      border: 1px solid var(--hud-border);
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    .hud-bar-fill {
+      width: 100%;
+      background: linear-gradient(to top, #39ff14, #9fff8a);
+    }
+
+    /* ── VIEWPORT CENTRAL ──────────────────────────────────────── */
+    #center-viewport {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
     }
 
     #vn-background {
       position: absolute;
       inset: 0;
-      background-color: var(--bg);
+      background-color: #000;
       background-size: cover;
       background-position: center top;
       background-repeat: no-repeat;
@@ -104,7 +225,7 @@
       bottom: 0;
       left: 50%;
       transform: translateX(-50%);
-      height: 85%;
+      height: 95%;
       pointer-events: none;
     }
 
@@ -116,50 +237,123 @@
       display: block;
     }
 
+    /* ── PAINEL DIREITO ─────────────────────────────────────────── */
+    #hud-right {
+      width: 11%;
+      min-width: 64px;
+      background: var(--hud-bg);
+      border-left: 2px solid var(--hud-border);
+      display: flex;
+      justify-content: space-evenly;
+      align-items: center;
+      padding: 12px 4px;
+    }
+
+    .hud-thermo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      height: 80%;
+    }
+
+    .thermo-label {
+      font-family: monospace;
+      font-size: 0.65rem;
+      color: var(--hud-text);
+      flex-shrink: 0;
+    }
+
+    .thermo-tube {
+      flex: 1;
+      width: 12px;
+      background: #1a0a2e;
+      border: 2px solid var(--hud-border);
+      border-radius: 6px 6px 0 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      overflow: hidden;
+    }
+
+    .thermo-mercury {
+      width: 100%;
+      background: linear-gradient(to top, var(--hud-mercury), #ff6666);
+    }
+
+    .thermo-bulb {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #ff6666, var(--hud-mercury));
+      border: 2px solid var(--hud-border);
+      flex-shrink: 0;
+    }
+
+    /* ── CAIXA DE DIÁLOGO ──────────────────────────────────────── */
     #dialogue-box {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      min-height: 190px;
-      background: rgba(13, 13, 13, 0.88);
-      border-top: 1px solid var(--border);
+      background: rgba(15, 7, 32, 0.95);
+      border-top: 2px solid var(--hud-border);
       backdrop-filter: blur(4px);
       -webkit-backdrop-filter: blur(4px);
-      padding: 1.25rem 2rem 1.25rem;
+      padding: 1rem 2rem 0.75rem;
+      min-height: 160px;
       cursor: pointer;
       user-select: none;
       -webkit-user-select: none;
     }
 
     #name-box {
-      font-family: 'Inter', sans-serif;
+      font-family: monospace;
       font-size: 0.72rem;
       font-weight: 600;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: var(--accent);
-      margin-bottom: 0.5rem;
+      color: var(--hud-accent);
+      margin-bottom: 0.4rem;
       min-height: 1rem;
     }
 
     #dialogue-text {
       font-family: 'Lora', serif;
-      font-size: 1.05rem;
+      font-size: 1rem;
       line-height: 1.8;
-      color: var(--text);
-      min-height: 3.6rem;
+      color: #e8e4ff;
+      min-height: 3rem;
     }
 
     #advance-hint {
-      font-family: 'Inter', sans-serif;
-      font-size: 0.65rem;
-      color: var(--text-muted);
+      font-family: monospace;
+      font-size: 0.6rem;
+      color: var(--hud-accent);
       text-align: right;
-      margin-top: 0.6rem;
+      margin-top: 0.4rem;
       opacity: 0;
       animation: hint-pulse 1.6s ease-in-out infinite;
     }
+
+    /* ── BARRA INFERIOR ─────────────────────────────────────────── */
+    #bottom-bar {
+      display: flex;
+      justify-content: center;
+      background: var(--hud-bg);
+      border-top: 1px solid var(--hud-border);
+      padding: 4px 0;
+    }
+
+    .bar-btn {
+      font-family: monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.06em;
+      color: var(--hud-text);
+      background: transparent;
+      border: none;
+      border-right: 1px solid var(--hud-border);
+      padding: 4px 16px;
+      cursor: default;
+    }
+
+    .bar-btn:last-child { border-right: none; }
 
     /* ── TELA FINAL ────────────────────────────────────────────── */
     #vn-end-screen {
@@ -202,9 +396,18 @@
     }
 
     @media (max-width: 600px) {
-      #vn-character { height: 58%; }
-      #dialogue-box { padding: 1rem 1.25rem 1rem; min-height: 170px; }
-      #dialogue-text { font-size: 0.95rem; }
+      #hud-left  { width: 80px; min-width: 80px; }
+      #hud-right { width: 48px; min-width: 48px; }
+      #hud-portrait { aspect-ratio: unset; height: 64px; }
+      .monitor-wave { height: 28px; }
+      #hud-controls { gap: 4px; }
+      .hud-btn { width: 24px; height: 24px; }
+      .hud-bar-track { height: 40px; }
+      #vn-character { height: 85%; }
+      #dialogue-box { padding: 0.75rem 1rem; min-height: 130px; }
+      #dialogue-text { font-size: 0.9rem; }
+      .thermo-tube { width: 8px; }
+      .thermo-bulb { width: 16px; height: 16px; }
     }
   </style>
 </head>
@@ -235,15 +438,85 @@
 
     <!-- Cena VN -->
     <div id="vn-scene">
-      <div id="vn-background"></div>
-      <div id="vn-character">
-        <img id="char-img" src="../art/Girl_1_sprite_1.png" alt="Personagem">
-      </div>
+
+      <!-- ── HUD ROW ─────────────────────────────────────────────── -->
+      <div id="hud-row">
+
+        <!-- PAINEL ESQUERDO -->
+        <div id="hud-left">
+
+          <div id="hud-portrait"><!-- placeholder --></div>
+
+          <div class="hud-monitor">
+            <div class="monitor-label">SYS <span class="monitor-val">856 BPM</span></div>
+            <svg class="monitor-wave" viewBox="0 0 120 30" preserveAspectRatio="none">
+              <polyline class="wave-line"
+                points="0,15 10,15 14,4 18,26 22,4 26,26 30,15 40,15 44,4 48,26 52,4 56,26 60,15 80,15 84,8 88,22 92,8 96,22 100,15 120,15"/>
+            </svg>
+          </div>
+
+          <div class="hud-monitor">
+            <div class="monitor-label">BIO <span class="monitor-val">856 BPM</span></div>
+            <svg class="monitor-wave" viewBox="0 0 120 30" preserveAspectRatio="none">
+              <polyline class="wave-line"
+                points="0,15 8,15 12,6 16,24 20,10 24,20 28,15 50,15 54,5 58,25 62,5 66,25 70,15 90,15 94,9 98,21 102,9 106,21 110,15 120,15"/>
+            </svg>
+          </div>
+
+          <div id="hud-controls">
+            <div id="hud-buttons">
+              <div class="hud-btn hud-btn--yellow"></div>
+              <div class="hud-btn hud-btn--red"></div>
+            </div>
+            <div id="hud-bars">
+              <div class="hud-bar-track"><div class="hud-bar-fill" style="height:72%"></div></div>
+              <div class="hud-bar-track"><div class="hud-bar-fill" style="height:45%"></div></div>
+              <div class="hud-bar-track"><div class="hud-bar-fill" style="height:88%"></div></div>
+            </div>
+          </div>
+
+        </div><!-- /#hud-left -->
+
+        <!-- VIEWPORT CENTRAL -->
+        <div id="center-viewport">
+          <div id="vn-background"></div>
+          <div id="vn-character">
+            <img id="char-img" src="../art/Girl_1_sprite_1.png" alt="Personagem">
+          </div>
+        </div>
+
+        <!-- PAINEL DIREITO -->
+        <div id="hud-right">
+          <div class="hud-thermo">
+            <div class="thermo-label">°F</div>
+            <div class="thermo-tube"><div class="thermo-mercury" style="height:40%"></div></div>
+            <div class="thermo-bulb"></div>
+          </div>
+          <div class="hud-thermo">
+            <div class="thermo-label">°C</div>
+            <div class="thermo-tube"><div class="thermo-mercury" style="height:40%"></div></div>
+            <div class="thermo-bulb"></div>
+          </div>
+        </div>
+
+      </div><!-- /#hud-row -->
+
+      <!-- CAIXA DE DIÁLOGO -->
       <div id="dialogue-box">
         <div id="name-box"></div>
         <div id="dialogue-text"></div>
         <div id="advance-hint">&#9660;</div>
       </div>
+
+      <!-- BARRA INFERIOR -->
+      <div id="bottom-bar">
+        <button class="bar-btn">History</button>
+        <button class="bar-btn">Skip</button>
+        <button class="bar-btn">Auto</button>
+        <button class="bar-btn">Save</button>
+        <button class="bar-btn">Prefs</button>
+      </div>
+
     </div>
 
     <!-- Tela final -->
@@ -404,7 +677,7 @@
 
       // Esconde mapa, mostra cena
       els.map.style.display = 'none';
-      els.scene.style.display = 'block';
+      els.scene.style.display = 'flex';
       // Força reflow para a transição funcionar
       void els.scene.offsetWidth;
       els.scene.style.opacity = '1';
