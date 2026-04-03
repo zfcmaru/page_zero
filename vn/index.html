@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VN — ZFC Notes</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <style>
+    /* Reset body overflow para o stage ocupar a tela toda */
+    body {
+      overflow: hidden;
+    }
+
+    #vn-stage {
+      position: relative;
+      width: 100%;
+      height: calc(100vh - 56px);
+      overflow: hidden;
+      background: var(--bg);
+    }
+
+    #vn-background {
+      position: absolute;
+      inset: 0;
+      background: var(--bg);
+      transition: background 0.6s ease;
+    }
+
+    #vn-character {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      height: 85%;
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    #vn-character img {
+      height: 100%;
+      width: auto;
+      object-fit: contain;
+      display: block;
+    }
+
+    #vn-ui {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    #dialogue-box {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      min-height: 190px;
+      background: rgba(13, 13, 13, 0.88);
+      border-top: 1px solid var(--border);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      padding: 1.25rem 2rem 1.25rem;
+      cursor: pointer;
+      pointer-events: all;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    #name-box {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+      min-height: 1rem;
+    }
+
+    #dialogue-text {
+      font-family: 'Lora', serif;
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--text);
+      min-height: 3.6rem;
+    }
+
+    #advance-hint {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-align: right;
+      margin-top: 0.6rem;
+      opacity: 0;
+      animation: hint-pulse 1.6s ease-in-out infinite;
+    }
+
+    @keyframes hint-pulse {
+      0%, 100% { opacity: 0.25; }
+      50%       { opacity: 1; }
+    }
+
+    /* Tela inicial */
+    #vn-start-screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      background: var(--bg);
+      cursor: pointer;
+      z-index: 5;
+    }
+
+    #vn-start-screen p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      animation: hint-pulse 2s ease-in-out infinite;
+    }
+
+    /* Tela de fim */
+    #vn-end-screen {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      background: var(--bg);
+      z-index: 5;
+    }
+
+    #vn-end-screen p {
+      font-family: 'Lora', serif;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+    }
+
+    #vn-end-screen a {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.2s;
+    }
+
+    #vn-end-screen a:hover {
+      border-color: var(--accent);
+    }
+
+    /* Mobile */
+    @media (max-width: 600px) {
+      #vn-character {
+        height: 58%;
+      }
+
+      #dialogue-box {
+        padding: 1rem 1.25rem 1rem;
+        min-height: 170px;
+      }
+
+      #dialogue-text {
+        font-size: 0.95rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="container">
+      <a href="/" class="site-title">ZFC Notes</a>
+      <a href="../blog/">Blog</a>
+      <a href="../art/">Arte</a>
+      <a href="../vn/">VN</a>
+    </div>
+  </nav>
+
+  <div id="vn-stage">
+
+    <div id="vn-background"></div>
+
+    <div id="vn-character">
+      <img id="char-img" src="../art/Illustration9.jpg" alt="Personagem">
+    </div>
+
+    <div id="vn-ui">
+      <div id="dialogue-box">
+        <div id="name-box"></div>
+        <div id="dialogue-text"></div>
+        <div id="advance-hint">&#9660;</div>
+      </div>
+    </div>
+
+    <div id="vn-start-screen">
+      <p>clique para começar</p>
+    </div>
+
+    <div id="vn-end-screen">
+      <p>[ fim ]</p>
+      <a href="../">voltar ao início</a>
+    </div>
+
+  </div>
+
+  <script>
+    // ── SCRIPT DA HISTÓRIA ────────────────────────────────────────────────────
+    // Edite este array para mudar os diálogos.
+    // Campos por beat:
+    //   speaker  — nome exibido na caixa (string vazia = sem nome)
+    //   text     — linha de diálogo
+    //   image    — (opcional) caminho da imagem do personagem; null = esconde
+    //   bg       — (opcional) cor ou imagem CSS para o fundo da cena
+
+    const SCRIPT = [
+      {
+        speaker: "",
+        text: "...",
+        image: "../art/Illustration9.jpg"
+      },
+      {
+        speaker: "???",
+        text: "Você chegou até aqui."
+      },
+      {
+        speaker: "???",
+        text: "Não sei bem o que esperava encontrar."
+      },
+      {
+        speaker: "???",
+        text: "Mas que bom que veio."
+      }
+    ];
+
+    // ── MOTOR ─────────────────────────────────────────────────────────────────
+    // Não é necessário editar abaixo, a menos que queira mudar o comportamento.
+
+    const state = {
+      index: 0,
+      typing: false,
+      typeTimer: null
+    };
+
+    const els = {
+      stage:       document.getElementById('vn-stage'),
+      background:  document.getElementById('vn-background'),
+      character:   document.getElementById('vn-character'),
+      charImg:     document.getElementById('char-img'),
+      nameBox:     document.getElementById('name-box'),
+      dialogText:  document.getElementById('dialogue-text'),
+      hint:        document.getElementById('advance-hint'),
+      startScreen: document.getElementById('vn-start-screen'),
+      endScreen:   document.getElementById('vn-end-screen'),
+      dialogueBox: document.getElementById('dialogue-box')
+    };
+
+    function showBeat(index) {
+      if (index >= SCRIPT.length) {
+        endScene();
+        return;
+      }
+
+      const beat = SCRIPT[index];
+
+      // Imagem do personagem
+      if ('image' in beat) {
+        if (beat.image === null) {
+          els.character.style.opacity = '0';
+        } else {
+          els.charImg.src = beat.image;
+          els.character.style.opacity = '1';
+        }
+      }
+
+      // Fundo
+      if (beat.bg) {
+        els.background.style.background = beat.bg;
+      }
+
+      // Nome
+      if (beat.speaker) {
+        els.nameBox.textContent = beat.speaker;
+        els.nameBox.style.visibility = 'visible';
+      } else {
+        els.nameBox.textContent = '';
+        els.nameBox.style.visibility = 'hidden';
+      }
+
+      // Typewriter
+      els.hint.style.animationPlayState = 'paused';
+      els.hint.style.opacity = '0';
+      startTypewriter(beat.text);
+    }
+
+    function startTypewriter(text) {
+      state.typing = true;
+      els.dialogText.textContent = '';
+      let i = 0;
+      clearInterval(state.typeTimer);
+      state.typeTimer = setInterval(function () {
+        els.dialogText.textContent += text[i];
+        i++;
+        if (i >= text.length) {
+          clearInterval(state.typeTimer);
+          state.typing = false;
+          els.hint.style.animationPlayState = 'running';
+          els.hint.style.opacity = '0.25';
+        }
+      }, 28);
+    }
+
+    function advance() {
+      if (state.typing) {
+        // Pula typewriter: exibe texto completo imediatamente
+        clearInterval(state.typeTimer);
+        state.typing = false;
+        els.dialogText.textContent = SCRIPT[state.index].text;
+        els.hint.style.animationPlayState = 'running';
+        els.hint.style.opacity = '0.25';
+        return;
+      }
+      state.index++;
+      showBeat(state.index);
+    }
+
+    function endScene() {
+      els.character.style.opacity = '0';
+      els.dialogueBox.style.display = 'none';
+      els.endScreen.style.display = 'flex';
+    }
+
+    function startVN() {
+      els.startScreen.style.display = 'none';
+      showBeat(0);
+    }
+
+    // Clique na caixa de diálogo avança
+    els.dialogueBox.addEventListener('click', advance);
+
+    // Teclado: Space, Enter, seta direita
+    document.addEventListener('keydown', function (e) {
+      if (['Space', 'Enter', 'ArrowRight'].includes(e.code)) {
+        e.preventDefault();
+        if (els.startScreen.style.display !== 'none') {
+          startVN();
+        } else {
+          advance();
+        }
+      }
+    });
+
+    // Clique na tela inicial inicia a VN
+    els.startScreen.addEventListener('click', startVN);
+  </script>
+
+</body>
+</html>
