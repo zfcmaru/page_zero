@@ -6,7 +6,6 @@
   <title>VN — ZFC Notes</title>
   <link rel="stylesheet" href="../assets/css/style.css">
   <style>
-    /* Reset body overflow para o stage ocupar a tela toda */
     body {
       overflow: hidden;
     }
@@ -19,6 +18,78 @@
       background: var(--bg);
     }
 
+    /* ── TELA INICIAL ──────────────────────────────────────────── */
+    #vn-start-screen {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      background: var(--bg);
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    #vn-start-screen p {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      animation: hint-pulse 2s ease-in-out infinite;
+    }
+
+    /* ── MAPA ──────────────────────────────────────────────────── */
+    #vn-map {
+      position: absolute;
+      inset: 0;
+      background: #000;
+      display: none;
+    }
+
+    #player {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      background: var(--accent);
+      clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+      transform: translate(-50%, -50%);
+      transition: transform 0.05s;
+    }
+
+    #destination {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      background: #fff;
+      transform: translate(-50%, -50%);
+    }
+
+    #map-hint {
+      position: absolute;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+      animation: hint-pulse 2s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    /* ── CENA VN ───────────────────────────────────────────────── */
+    #vn-scene {
+      position: absolute;
+      inset: 0;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+
     #vn-background {
       position: absolute;
       inset: 0;
@@ -26,7 +97,6 @@
       background-size: cover;
       background-position: center top;
       background-repeat: no-repeat;
-      transition: background-image 0.4s ease, background-color 0.4s ease;
     }
 
     #vn-character {
@@ -36,7 +106,6 @@
       transform: translateX(-50%);
       height: 85%;
       pointer-events: none;
-      transition: opacity 0.4s ease;
     }
 
     #vn-character img {
@@ -45,12 +114,6 @@
       object-fit: contain;
       object-position: bottom center;
       display: block;
-    }
-
-    #vn-ui {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
     }
 
     #dialogue-box {
@@ -65,7 +128,6 @@
       -webkit-backdrop-filter: blur(4px);
       padding: 1.25rem 2rem 1.25rem;
       cursor: pointer;
-      pointer-events: all;
       user-select: none;
       -webkit-user-select: none;
     }
@@ -99,35 +161,7 @@
       animation: hint-pulse 1.6s ease-in-out infinite;
     }
 
-    @keyframes hint-pulse {
-      0%, 100% { opacity: 0.25; }
-      50%       { opacity: 1; }
-    }
-
-    /* Tela inicial */
-    #vn-start-screen {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0.75rem;
-      background: var(--bg);
-      cursor: pointer;
-      z-index: 5;
-    }
-
-    #vn-start-screen p {
-      font-family: 'Inter', sans-serif;
-      font-size: 0.75rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      animation: hint-pulse 2s ease-in-out infinite;
-    }
-
-    /* Tela de fim */
+    /* ── TELA FINAL ────────────────────────────────────────────── */
     #vn-end-screen {
       position: absolute;
       inset: 0;
@@ -162,20 +196,15 @@
       border-color: var(--accent);
     }
 
-    /* Mobile */
+    @keyframes hint-pulse {
+      0%, 100% { opacity: 0.25; }
+      50%       { opacity: 1; }
+    }
+
     @media (max-width: 600px) {
-      #vn-character {
-        height: 58%;
-      }
-
-      #dialogue-box {
-        padding: 1rem 1.25rem 1rem;
-        min-height: 170px;
-      }
-
-      #dialogue-text {
-        font-size: 0.95rem;
-      }
+      #vn-character { height: 58%; }
+      #dialogue-box { padding: 1rem 1.25rem 1rem; min-height: 170px; }
+      #dialogue-text { font-size: 0.95rem; }
     }
   </style>
 </head>
@@ -192,13 +221,24 @@
 
   <div id="vn-stage">
 
-    <div id="vn-background"></div>
-
-    <div id="vn-character">
-      <img id="char-img" src="../art/Illustration9.jpg" alt="Personagem">
+    <!-- Tela inicial -->
+    <div id="vn-start-screen">
+      <p>clique para começar</p>
     </div>
 
-    <div id="vn-ui">
+    <!-- Mapa -->
+    <div id="vn-map">
+      <div id="player"></div>
+      <div id="destination"></div>
+      <div id="map-hint">use as setas para se mover</div>
+    </div>
+
+    <!-- Cena VN -->
+    <div id="vn-scene">
+      <div id="vn-background"></div>
+      <div id="vn-character">
+        <img id="char-img" src="../art/Girl_1_sprite_1.png" alt="Personagem">
+      </div>
       <div id="dialogue-box">
         <div id="name-box"></div>
         <div id="dialogue-text"></div>
@@ -206,10 +246,7 @@
       </div>
     </div>
 
-    <div id="vn-start-screen">
-      <p>clique para começar</p>
-    </div>
-
+    <!-- Tela final -->
     <div id="vn-end-screen">
       <p>[ fim ]</p>
       <a href="../">voltar ao início</a>
@@ -218,19 +255,11 @@
   </div>
 
   <script>
-    // ── SCRIPT DA HISTÓRIA ────────────────────────────────────────────────────
-    // Edite este array para mudar os diálogos.
-    // Campos por beat:
-    //   speaker  — nome exibido na caixa (string vazia = sem nome)
-    //   text     — linha de diálogo
-    //   image    — (opcional) caminho da imagem do personagem; null = esconde
-    //   bg       — (opcional) cor ou imagem CSS para o fundo da cena
-
+    // ── SCRIPT DA HISTÓRIA ─────────────────────────────────────────────────────
     const SCRIPT = [
       {
         speaker: "",
         text: "...",
-        image: "../art/Illustration9_sprite.jpg",
         bg: "../art/IMG_8371.jpeg"
       },
       {
@@ -247,57 +276,166 @@
       }
     ];
 
-    // ── MOTOR ─────────────────────────────────────────────────────────────────
-    // Não é necessário editar abaixo, a menos que queira mudar o comportamento.
+    // ── ESTADO ────────────────────────────────────────────────────────────────
+    // gameState: 'start' | 'walking' | 'dialogue' | 'end'
+    let gameState = 'start';
 
-    const state = {
-      index: 0,
-      typing: false,
-      typeTimer: null
+    // Posição do jogador (px, centro do elemento)
+    const player = { x: 0, y: 0 };
+    // Posição do destino (px, centro do elemento)
+    const dest = { x: 0, y: 0 };
+
+    const SPEED = 3;
+    const TRIGGER_DIST = 40;
+
+    const keys = {};
+
+    // Rotação do ponteiro por direção
+    const DIR_ROTATION = {
+      up:    'translate(-50%, -50%) rotate(0deg)',
+      down:  'translate(-50%, -50%) rotate(180deg)',
+      left:  'translate(-50%, -50%) rotate(-90deg)',
+      right: 'translate(-50%, -50%) rotate(90deg)'
     };
+    let lastDir = 'up';
 
+    // ── ELEMENTOS ─────────────────────────────────────────────────────────────
     const els = {
-      stage:       document.getElementById('vn-stage'),
+      startScreen: document.getElementById('vn-start-screen'),
+      map:         document.getElementById('vn-map'),
+      playerEl:    document.getElementById('player'),
+      destEl:      document.getElementById('destination'),
+      scene:       document.getElementById('vn-scene'),
       background:  document.getElementById('vn-background'),
       character:   document.getElementById('vn-character'),
       charImg:     document.getElementById('char-img'),
       nameBox:     document.getElementById('name-box'),
       dialogText:  document.getElementById('dialogue-text'),
       hint:        document.getElementById('advance-hint'),
-      startScreen: document.getElementById('vn-start-screen'),
-      endScreen:   document.getElementById('vn-end-screen'),
-      dialogueBox: document.getElementById('dialogue-box')
+      dialogueBox: document.getElementById('dialogue-box'),
+      endScreen:   document.getElementById('vn-end-screen')
     };
+
+    // ── MAPA ──────────────────────────────────────────────────────────────────
+    function initMap() {
+      const stage = document.getElementById('vn-stage');
+      const W = stage.clientWidth;
+      const H = stage.clientHeight;
+
+      player.x = W * 0.15;
+      player.y = H * 0.50;
+
+      dest.x = W * 0.75;
+      dest.y = H * 0.50;
+
+      applyPlayerPos();
+      applyDestPos();
+    }
+
+    function applyPlayerPos() {
+      els.playerEl.style.left = player.x + 'px';
+      els.playerEl.style.top  = player.y + 'px';
+    }
+
+    function applyDestPos() {
+      els.destEl.style.left = dest.x + 'px';
+      els.destEl.style.top  = dest.y + 'px';
+    }
+
+    function dist(a, b) {
+      return Math.hypot(a.x - b.x, a.y - b.y);
+    }
+
+    let rafId = null;
+
+    function gameLoop() {
+      if (gameState !== 'walking') return;
+
+      const stage = document.getElementById('vn-stage');
+      const W = stage.clientWidth;
+      const H = stage.clientHeight;
+
+      let dx = 0, dy = 0;
+      if (keys['ArrowUp']    || keys['KeyW']) dy -= 1;
+      if (keys['ArrowDown']  || keys['KeyS']) dy += 1;
+      if (keys['ArrowLeft']  || keys['KeyA']) dx -= 1;
+      if (keys['ArrowRight'] || keys['KeyD']) dx += 1;
+
+      if (dx !== 0 || dy !== 0) {
+        // Normaliza diagonal
+        if (dx !== 0 && dy !== 0) {
+          dx *= 0.707;
+          dy *= 0.707;
+        }
+
+        player.x = Math.max(0, Math.min(W, player.x + dx * SPEED));
+        player.y = Math.max(0, Math.min(H, player.y + dy * SPEED));
+        applyPlayerPos();
+
+        // Atualiza rotação
+        if      (dy < 0) lastDir = 'up';
+        else if (dy > 0) lastDir = 'down';
+        else if (dx < 0) lastDir = 'left';
+        else if (dx > 0) lastDir = 'right';
+        els.playerEl.style.transform = DIR_ROTATION[lastDir];
+      }
+
+      // Checa chegada
+      if (dist(player, dest) <= TRIGGER_DIST) {
+        startDialogue();
+        return;
+      }
+
+      rafId = requestAnimationFrame(gameLoop);
+    }
+
+    // ── TRANSIÇÕES DE ESTADO ──────────────────────────────────────────────────
+    function startGame() {
+      els.startScreen.style.display = 'none';
+      els.map.style.display = 'block';
+      initMap();
+      gameState = 'walking';
+      rafId = requestAnimationFrame(gameLoop);
+    }
+
+    function startDialogue() {
+      gameState = 'dialogue';
+      cancelAnimationFrame(rafId);
+
+      // Esconde mapa, mostra cena
+      els.map.style.display = 'none';
+      els.scene.style.display = 'block';
+      // Força reflow para a transição funcionar
+      void els.scene.offsetWidth;
+      els.scene.style.opacity = '1';
+
+      vnIndex = 0;
+      showBeat(0);
+    }
+
+    function endVN() {
+      gameState = 'end';
+      els.scene.style.display = 'none';
+      els.endScreen.style.display = 'flex';
+    }
+
+    // ── MOTOR VN ──────────────────────────────────────────────────────────────
+    let vnIndex = 0;
+    let vnTyping = false;
+    let vnTypeTimer = null;
 
     function showBeat(index) {
       if (index >= SCRIPT.length) {
-        endScene();
+        endVN();
         return;
       }
 
       const beat = SCRIPT[index];
 
-      // Imagem do personagem
-      if ('image' in beat) {
-        if (beat.image === null) {
-          els.character.style.opacity = '0';
-        } else {
-          els.charImg.src = beat.image;
-          els.character.style.opacity = '1';
-        }
-      }
-
       // Fundo
       if (beat.bg) {
-        const ext = beat.bg.toLowerCase();
-        if (beat.bg.startsWith('url(') || ext.endsWith('.jpg') || ext.endsWith('.jpeg') || ext.endsWith('.png') || ext.endsWith('.webp')) {
-          const url = beat.bg.startsWith('url(') ? beat.bg : `url(${beat.bg})`;
-          els.background.style.backgroundImage = url;
-          els.background.style.backgroundColor = '';
-        } else {
-          els.background.style.backgroundImage = '';
-          els.background.style.backgroundColor = beat.bg;
-        }
+        const url = beat.bg.startsWith('url(') ? beat.bg : `url(${beat.bg})`;
+        els.background.style.backgroundImage = url;
       }
 
       // Nome
@@ -316,16 +454,16 @@
     }
 
     function startTypewriter(text) {
-      state.typing = true;
+      vnTyping = true;
       els.dialogText.textContent = '';
       let i = 0;
-      clearInterval(state.typeTimer);
-      state.typeTimer = setInterval(function () {
+      clearInterval(vnTypeTimer);
+      vnTypeTimer = setInterval(function () {
         els.dialogText.textContent += text[i];
         i++;
         if (i >= text.length) {
-          clearInterval(state.typeTimer);
-          state.typing = false;
+          clearInterval(vnTypeTimer);
+          vnTyping = false;
           els.hint.style.animationPlayState = 'running';
           els.hint.style.opacity = '0.25';
         }
@@ -333,47 +471,53 @@
     }
 
     function advance() {
-      if (state.typing) {
-        // Pula typewriter: exibe texto completo imediatamente
-        clearInterval(state.typeTimer);
-        state.typing = false;
-        els.dialogText.textContent = SCRIPT[state.index].text;
+      if (gameState !== 'dialogue') return;
+      if (vnTyping) {
+        clearInterval(vnTypeTimer);
+        vnTyping = false;
+        els.dialogText.textContent = SCRIPT[vnIndex].text;
         els.hint.style.animationPlayState = 'running';
         els.hint.style.opacity = '0.25';
         return;
       }
-      state.index++;
-      showBeat(state.index);
+      vnIndex++;
+      showBeat(vnIndex);
     }
 
-    function endScene() {
-      els.character.style.opacity = '0';
-      els.dialogueBox.style.display = 'none';
-      els.endScreen.style.display = 'flex';
-    }
+    // ── EVENTOS ───────────────────────────────────────────────────────────────
+    els.startScreen.addEventListener('click', startGame);
 
-    function startVN() {
-      els.startScreen.style.display = 'none';
-      showBeat(0);
-    }
-
-    // Clique na caixa de diálogo avança
     els.dialogueBox.addEventListener('click', advance);
 
-    // Teclado: Space, Enter, seta direita
     document.addEventListener('keydown', function (e) {
-      if (['Space', 'Enter', 'ArrowRight'].includes(e.code)) {
-        e.preventDefault();
-        if (els.startScreen.style.display !== 'none') {
-          startVN();
-        } else {
+      keys[e.code] = true;
+
+      if (gameState === 'start') {
+        if (['Space', 'Enter'].includes(e.code)) {
+          e.preventDefault();
+          startGame();
+        }
+        return;
+      }
+
+      if (gameState === 'walking') {
+        if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) {
+          e.preventDefault();
+        }
+        return;
+      }
+
+      if (gameState === 'dialogue') {
+        if (['Space', 'Enter', 'ArrowRight'].includes(e.code)) {
+          e.preventDefault();
           advance();
         }
       }
     });
 
-    // Clique na tela inicial inicia a VN
-    els.startScreen.addEventListener('click', startVN);
+    document.addEventListener('keyup', function (e) {
+      keys[e.code] = false;
+    });
   </script>
 
 </body>
