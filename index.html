@@ -1,60 +1,172 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ZFC Notes</title>
   <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    /* ── Tab Bar ── */
+    .tab-bar {
+      border-bottom: 1px solid var(--border);
+      background-color: var(--bg);
+    }
+
+    .tab-bar .container {
+      display: flex;
+    }
+
+    .tab-btn {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.03em;
+      padding: 0.75rem 0;
+      margin-right: 2rem;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+
+    .tab-btn:hover { color: var(--text); }
+
+    .tab-btn.active {
+      color: var(--text);
+      border-bottom-color: var(--accent);
+    }
+
+    /* ── Tab Panels ── */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    #tab-vn.active { display: flex; flex-direction: column; }
+
+    /* ── Presentation: links ── */
+    .links-section {
+      padding: 2.5rem 0;
+    }
+
+    .link-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .link-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.9rem 1.25rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      text-decoration: none;
+      color: var(--text);
+      transition: border-color 0.15s;
+    }
+
+    .link-item:hover {
+      border-color: var(--accent);
+    }
+
+    .link-platform {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      flex: 1;
+    }
+
+    .link-url {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .link-arrow {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-left: 0.5rem;
+      transition: color 0.15s;
+    }
+
+    .link-item:hover .link-arrow {
+      color: var(--accent);
+    }
+
+    /* ── VN iframe ── */
+    #vn-iframe {
+      width: 100%;
+      border: none;
+      display: block;
+    }
+
+    /* ── VN tab active: no outer scroll, hide footer ── */
+    body.vn-active {
+      overflow: hidden;
+    }
+
+    body.vn-active footer {
+      display: none;
+    }
+
+    @media (max-width: 600px) {
+      .tab-btn { font-size: 0.8rem; }
+      .link-url { display: none; }
+    }
+  </style>
 </head>
 <body>
 
   <nav>
     <div class="container">
       <a href="/" class="site-title">ZFC Notes</a>
-      <a href="blog/">Blog</a>
-      <a href="art/">Arte</a>
-      <a href="vn/">VN</a>
     </div>
   </nav>
 
-  <main>
+  <div class="tab-bar">
     <div class="container">
+      <button class="tab-btn active" data-tab="presentation">Presentation</button>
+      <button class="tab-btn" data-tab="vn">VN</button>
+    </div>
+  </div>
 
-      <div class="hero">
-        <h1>Notas, ideias<br>e ilustrações.</h1>
-        <p>Um lugar para escrever sobre o que me interessa e guardar as coisas que desenho.</p>
-      </div>
+  <main>
 
-      <section>
-        <div class="section-header">
-          <h2>Posts recentes</h2>
-          <a href="blog/">Ver todos →</a>
-        </div>
-        <ul class="post-list">
-          <!-- exemplo de post — substitua pelo real quando tiver -->
-          <li class="post-item">
-            <a href="blog/primeiro-post.html">
-              <div class="post-title">Primeiro post</div>
-              <div class="post-meta">3 abr 2026</div>
-              <div class="post-excerpt">Uma nota de abertura sobre o que é esse espaço e o que pretendo fazer com ele.</div>
+    <div id="tab-presentation" class="tab-panel active">
+      <div class="container">
+        <div class="links-section">
+          <div class="link-list">
+            <a href="https://zfcmaru.itch.io/" class="link-item" target="_blank" rel="noopener">
+              <span class="link-platform">itch.io</span>
+              <span class="link-url">zfcmaru.itch.io</span>
+              <span class="link-arrow">→</span>
             </a>
-          </li>
-        </ul>
-      </section>
-
-      <section>
-        <div class="section-header">
-          <h2>Arte recente</h2>
-          <a href="art/">Ver tudo →</a>
-        </div>
-        <div class="art-grid">
-          <div class="art-item">
-            <img src="art/Girl_1_sprite_1.png" alt="Girl">
+            <a href="https://www.pixiv.net/en/users/108114429" class="link-item" target="_blank" rel="noopener">
+              <span class="link-platform">Pixiv</span>
+              <span class="link-url">pixiv.net/en/users/108114429</span>
+              <span class="link-arrow">→</span>
+            </a>
+            <a href="https://x.com/Linx69696969" class="link-item" target="_blank" rel="noopener">
+              <span class="link-platform">X</span>
+              <span class="link-url">x.com/Linx69696969</span>
+              <span class="link-arrow">→</span>
+            </a>
+            <a href="http://www.tiktok.com/@zfcmaru" class="link-item" target="_blank" rel="noopener">
+              <span class="link-platform">TikTok</span>
+              <span class="link-url">tiktok.com/@zfcmaru</span>
+              <span class="link-arrow">→</span>
+            </a>
           </div>
         </div>
-      </section>
-
+      </div>
     </div>
+
+    <div id="tab-vn" class="tab-panel">
+      <iframe id="vn-iframe" src="vn/" title="Visual Novel"></iframe>
+    </div>
+
   </main>
 
   <footer>
@@ -63,6 +175,39 @@
       <p><a href="https://github.com/zfc14" target="_blank" rel="noopener">GitHub</a></p>
     </div>
   </footer>
+
+  <script>
+    // ── Tab Switcher ──────────────────────────────────────────────────────────
+    var tabs   = document.querySelectorAll('.tab-btn');
+    var panels = document.querySelectorAll('.tab-panel');
+
+    tabs.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var target = btn.getAttribute('data-tab');
+        tabs.forEach(function(t) { t.classList.remove('active'); });
+        panels.forEach(function(p) { p.classList.remove('active'); });
+        btn.classList.add('active');
+        document.getElementById('tab-' + target).classList.add('active');
+        if (target === 'vn') {
+          document.body.classList.add('vn-active');
+          resizeVNIframe();
+        } else {
+          document.body.classList.remove('vn-active');
+        }
+      });
+    });
+
+    // ── VN Iframe Height ──────────────────────────────────────────────────────
+    function resizeVNIframe() {
+      var nav    = document.querySelector('nav');
+      var tabBar = document.querySelector('.tab-bar');
+      var iframe = document.getElementById('vn-iframe');
+      iframe.style.height = (window.innerHeight - nav.offsetHeight - tabBar.offsetHeight) + 'px';
+    }
+
+    resizeVNIframe();
+    window.addEventListener('resize', resizeVNIframe);
+  </script>
 
 </body>
 </html>
