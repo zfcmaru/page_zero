@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VN — ZFC Notes</title>
+  <title>Ocean Park</title>
   <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&display=swap" rel="stylesheet">
   <style>
     body {
       overflow: hidden;
@@ -26,19 +28,30 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 0.75rem;
-      background: var(--bg);
+      gap: 1.5rem;
+      background: #000;
       cursor: pointer;
       z-index: 10;
     }
 
-    #vn-start-screen p {
-      font-family: 'Inter', sans-serif;
-      font-size: 0.75rem;
-      letter-spacing: 0.14em;
+    #game-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(2.5rem, 8vw, 5rem);
+      color: #fff;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: var(--text-muted);
+      margin: 0;
+    }
+
+    #start-hint {
+      font-family: monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.35);
       animation: hint-pulse 2s ease-in-out infinite;
+      margin: 0;
     }
 
     /* ── MAPA ──────────────────────────────────────────── */
@@ -315,6 +328,43 @@
 
       #dialogue-text { font-size: 0.85rem; }
     }
+
+    /* ── TOUCH CONTROLS ───────────────────────────────── */
+    #touch-controls {
+      position: absolute;
+      bottom: 3rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 2rem;
+      z-index: 10;
+      pointer-events: auto;
+    }
+
+    .touch-btn {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.6);
+      font-size: 1.4rem;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;
+    }
+
+    .touch-btn:active {
+      background: rgba(255,255,255,0.2);
+      border-color: rgba(255,255,255,0.6);
+    }
+
+    .choice-btn--active {
+      background: rgba(90, 53, 171, 0.5);
+      border-color: #a07de0;
+      color: #fff;
+    }
   </style>
 </head>
 <body>
@@ -322,7 +372,7 @@
   <nav>
     <div class="container">
       <a href="/" class="site-title">Zfcmaru</a>
-      <a href="../vn/">VN</a>
+      <a href="../vn/">Ocean Park</a>
     </div>
   </nav>
 
@@ -330,7 +380,8 @@
 
     <!-- Tela inicial -->
     <div id="vn-start-screen">
-      <p>click to start</p>
+      <h1 id="game-title">Ocean Park</h1>
+      <p id="start-hint">press enter or click to start</p>
     </div>
 
     <!-- Mapa -->
@@ -339,6 +390,10 @@
       <div id="player"></div>
       <div id="destination"></div>
       <div id="map-hint">← → to steer · reach the marker</div>
+      <div id="touch-controls">
+        <button id="btn-left"  class="touch-btn">◄</button>
+        <button id="btn-right" class="touch-btn">►</button>
+      </div>
     </div>
 
     <!-- Cena VN -->
@@ -386,7 +441,9 @@
     let gameState      = 'start';
     let currentBeatId  = null;
     let isBlinking     = false;
-    let isChoosing     = false;
+    let isChoosing      = false;
+    let choiceIndex     = 0;
+    let currentChoiceId = null;
     let blinkTimer     = null;
     let vnTyping       = false;
     let vnTypeTimer    = null;
@@ -701,23 +758,26 @@
 
     // ── CHOICE UI ─────────────────────────────────────────────────────────────
     function showChoice(choiceId) {
+      currentChoiceId = choiceId;
       isChoosing = true;
+      choiceIndex = 0;
       const choice = CHOICES[choiceId];
 
       els.choiceContainer.innerHTML = '';
-      choice.options.forEach(opt => {
+      choice.options.forEach((opt, i) => {
         const btn = document.createElement('button');
         btn.className = 'choice-btn';
         btn.textContent = opt.label;
-        btn.addEventListener('click', () => {
-          els.choiceContainer.style.display = 'none';
-          els.choiceContainer.innerHTML = '';
-          isChoosing = false;
-          showBeat(opt.next);
-        });
+        btn.dataset.index = i;
+        btn.addEventListener('click', () => confirmChoice(choice, i));
+        btn.addEventListener('touchstart', e => {
+          e.preventDefault();
+          confirmChoice(choice, i);
+        }, { passive: false });
         els.choiceContainer.appendChild(btn);
       });
 
+      updateChoiceHighlight();
       // Limpa dialogue enquanto escolha está ativa
       els.nameBox.textContent = '';
       els.dialogText.textContent = '';
@@ -726,9 +786,44 @@
       els.choiceContainer.style.display = 'flex';
     }
 
+    function updateChoiceHighlight() {
+      const btns = els.choiceContainer.querySelectorAll('.choice-btn');
+      btns.forEach((btn, i) => {
+        btn.classList.toggle('choice-btn--active', i === choiceIndex);
+      });
+    }
+
+    function confirmChoice(choice, index) {
+      els.choiceContainer.style.display = 'none';
+      els.choiceContainer.innerHTML = '';
+      isChoosing = false;
+      showBeat(choice.options[index].next);
+    }
+
     // ── EVENTOS ───────────────────────────────────────────────────────────────
     els.startScreen.addEventListener('click', startGame);
+    els.startScreen.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      startGame();
+    }, { passive: false });
+
     els.dialogueBox.addEventListener('click', advance);
+    els.dialogueBox.addEventListener('touchstart', function(e) {
+      e.preventDefault();
+      advance();
+    }, { passive: false });
+
+    const btnLeft  = document.getElementById('btn-left');
+    const btnRight = document.getElementById('btn-right');
+
+    btnLeft.addEventListener('touchstart',  e => { e.preventDefault(); keys['ArrowLeft']  = true;  }, { passive: false });
+    btnLeft.addEventListener('touchend',    e => { e.preventDefault(); keys['ArrowLeft']  = false; }, { passive: false });
+    btnRight.addEventListener('touchstart', e => { e.preventDefault(); keys['ArrowRight'] = true;  }, { passive: false });
+    btnRight.addEventListener('touchend',   e => { e.preventDefault(); keys['ArrowRight'] = false; }, { passive: false });
+    btnLeft.addEventListener('mousedown',  () => keys['ArrowLeft']  = true);
+    btnLeft.addEventListener('mouseup',    () => keys['ArrowLeft']  = false);
+    btnRight.addEventListener('mousedown', () => keys['ArrowRight'] = true);
+    btnRight.addEventListener('mouseup',   () => keys['ArrowRight'] = false);
 
     document.addEventListener('keydown', function(e) {
       keys[e.code] = true;
@@ -744,6 +839,25 @@
       if (gameState === 'walking') {
         if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) {
           e.preventDefault();
+        }
+        return;
+      }
+
+      if (gameState === 'dialogue' && isChoosing) {
+        const choice = CHOICES[currentChoiceId];
+        if (e.code === 'ArrowUp') {
+          e.preventDefault();
+          choiceIndex = (choiceIndex - 1 + choice.options.length) % choice.options.length;
+          updateChoiceHighlight();
+        }
+        if (e.code === 'ArrowDown') {
+          e.preventDefault();
+          choiceIndex = (choiceIndex + 1) % choice.options.length;
+          updateChoiceHighlight();
+        }
+        if (['Enter', 'Space'].includes(e.code)) {
+          e.preventDefault();
+          confirmChoice(choice, choiceIndex);
         }
         return;
       }
