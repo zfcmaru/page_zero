@@ -45,8 +45,17 @@
     #vn-map {
       position: absolute;
       inset: 0;
-      background: #000;
+      background: #0a1628;
       display: none;
+    }
+
+    #wind-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 2;
     }
 
     #player {
@@ -326,9 +335,10 @@
 
     <!-- Mapa -->
     <div id="vn-map">
+      <canvas id="wind-canvas"></canvas>
       <div id="player"></div>
       <div id="destination"></div>
-      <div id="map-hint">use arrow keys to move</div>
+      <div id="map-hint">← → to steer · reach the marker</div>
     </div>
 
     <!-- Cena VN -->
@@ -383,17 +393,19 @@
 
     const player = { x: 0, y: 0 };
     const dest   = { x: 0, y: 0 };
-    const SPEED        = 3;
     const TRIGGER_DIST = 40;
     const keys = {};
 
-    const DIR_ROTATION = {
-      up:    'translate(-50%, -50%) rotate(0deg)',
-      down:  'translate(-50%, -50%) rotate(180deg)',
-      left:  'translate(-50%, -50%) rotate(-90deg)',
-      right: 'translate(-50%, -50%) rotate(90deg)'
+    const wind = {
+      angle: 0, targetAngle: 0, strength: 1.2,
+      changeTimer: 0, changeInterval: 180
     };
-    let lastDir = 'up';
+    let boatAngle = 0;
+    const ROTATION_SPEED = 0.045;
+    const BOAT_SPEED     = 2.2;
+    const WIND_DRIFT     = 0.45;
+    const PARTICLE_COUNT = 55;
+    const particles      = [];
 
     // ── ELEMENTOS ─────────────────────────────────────────────────────────────
     const els = {
@@ -477,31 +489,102 @@
 
     let rafId = null;
 
-    function gameLoop() {
-      if (gameState !== 'walking') return;
+    // ── VENTO ─────────────────────────────────────────────────────────────────
+    function updateWind() {
+      wind.changeTimer++;
+      if (wind.changeTimer >= wind.changeInterval) {
+        wind.changeTimer = 0;
+        const delta = (Math.random() - 0.5) * (Math.PI * 2 / 3);
+        wind.targetAngle = wind.angle + delta;
+        wind.changeInterval = 150 + Math.floor(Math.random() * 120);
+      }
+      wind.angle += (wind.targetAngle - wind.angle) * 0.012;
+    }
+
+    function getWindVector() {
+      return {
+        x: Math.cos(wind.angle) * wind.strength,
+        y: Math.sin(wind.angle) * wind.strength
+      };
+    }
+
+    // ── PARTÍCULAS ────────────────────────────────────────────────────────────
+    function initParticles() {
+      particles.length = 0;
+      const stage = document.getElementById('vn-stage');
+      const W = stage.clientWidth;
+      const H = stage.clientHeight;
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        particles.push({
+          x:       Math.random() * W,
+          y:       Math.random() * H,
+          size:    1.5 + Math.random() * 2,
+          speed:   0.8 + Math.random() * 1.4,
+          opacity: 0.2 + Math.random() * 0.5
+        });
+      }
+    }
+
+    function updateParticles() {
+      const stage = document.getElementById('vn-stage');
+      const W = stage.clientWidth;
+      const H = stage.clientHeight;
+      const wv = getWindVector();
+      for (const p of particles) {
+        p.x += wv.x * p.speed;
+        p.y += wv.y * p.speed;
+        if (p.x < -10)    p.x = W + 10;
+        if (p.x > W + 10) p.x = -10;
+        if (p.y < -10)    p.y = H + 10;
+        if (p.y > H + 10) p.y = -10;
+      }
+    }
+
+    function drawParticles() {
+      const canvas = document.getElementById('wind-canvas');
+      const ctx    = canvas.getContext('2d');
+      const stage  = document.getElementById('vn-stage');
+      if (canvas.width !== stage.clientWidth) {
+        canvas.width  = stage.clientWidth;
+        canvas.height = stage.clientHeight;
+      }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const p of particles) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${p.opacity})`;
+        ctx.fill();
+      }
+    }
+
+    // ── MOVIMENTO DO BARCO ────────────────────────────────────────────────────
+    function updatePlayer() {
       const stage = document.getElementById('vn-stage');
       const W = stage.clientWidth;
       const H = stage.clientHeight;
 
-      let dx = 0, dy = 0;
-      if (keys['ArrowUp']    || keys['KeyW']) dy -= 1;
-      if (keys['ArrowDown']  || keys['KeyS']) dy += 1;
-      if (keys['ArrowLeft']  || keys['KeyA']) dx -= 1;
-      if (keys['ArrowRight'] || keys['KeyD']) dx += 1;
+      if (keys['ArrowLeft']  || keys['KeyA']) boatAngle -= ROTATION_SPEED;
+      if (keys['ArrowRight'] || keys['KeyD']) boatAngle += ROTATION_SPEED;
 
-      if (dx !== 0 || dy !== 0) {
-        if (dx !== 0 && dy !== 0) { dx *= 0.707; dy *= 0.707; }
-        player.x = Math.max(0, Math.min(W, player.x + dx * SPEED));
-        player.y = Math.max(0, Math.min(H, player.y + dy * SPEED));
-        applyPlayerPos();
+      const wv = getWindVector();
+      player.x += Math.cos(boatAngle) * BOAT_SPEED + wv.x * WIND_DRIFT;
+      player.y += Math.sin(boatAngle) * BOAT_SPEED + wv.y * WIND_DRIFT;
 
-        if      (dy < 0) lastDir = 'up';
-        else if (dy > 0) lastDir = 'down';
-        else if (dx < 0) lastDir = 'left';
-        else if (dx > 0) lastDir = 'right';
-        els.playerEl.style.transform = DIR_ROTATION[lastDir];
-      }
+      player.x = Math.max(0, Math.min(W, player.x));
+      player.y = Math.max(0, Math.min(H, player.y));
 
+      const degrees = boatAngle * (180 / Math.PI);
+      els.playerEl.style.left      = player.x + 'px';
+      els.playerEl.style.top       = player.y + 'px';
+      els.playerEl.style.transform = `translate(-50%, -50%) rotate(${degrees + 90}deg)`;
+    }
+
+    function gameLoop() {
+      if (gameState !== 'walking') return;
+      updateWind();
+      updateParticles();
+      drawParticles();
+      updatePlayer();
       if (dist(player, dest) <= TRIGGER_DIST) {
         startDialogue();
         return;
@@ -514,6 +597,8 @@
       els.startScreen.style.display = 'none';
       els.map.style.display = 'block';
       initMap();
+      initParticles();
+      boatAngle = Math.atan2(dest.y - player.y, dest.x - player.x);
       gameState = 'walking';
       rafId = requestAnimationFrame(gameLoop);
     }
