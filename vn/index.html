@@ -389,7 +389,7 @@
       <canvas id="wind-canvas"></canvas>
       <div id="player"></div>
       <div id="destination"></div>
-      <div id="map-hint">← → to steer · reach the marker</div>
+      <div id="map-hint">← → helm · Q W sail · reach the marker</div>
       <div id="touch-controls">
         <button id="btn-left"  class="touch-btn">◄</button>
         <button id="btn-right" class="touch-btn">►</button>
@@ -463,6 +463,11 @@
     const WIND_DRIFT     = 0.45;
     const PARTICLE_COUNT = 55;
     const particles      = [];
+
+    let sailAngle = 0;
+    const SAIL_ROTATION_SPEED = 0.03;
+    const SAIL_MAX_ANGLE = Math.PI * 0.75;
+    let sailEfficiency = 0;
 
     // ── ELEMENTOS ─────────────────────────────────────────────────────────────
     const els = {
@@ -565,6 +570,38 @@
       };
     }
 
+    // ── FÍSICA DE VELA ────────────────────────────────────────────────────────
+    function getPointOfSailFactor(boatAngle, windAngle) {
+      const windFrom = windAngle + Math.PI;
+      let relative = boatAngle - windFrom;
+      while (relative >  Math.PI) relative -= Math.PI * 2;
+      while (relative < -Math.PI) relative += Math.PI * 2;
+      const abs = Math.abs(relative);
+      const DEAD_ZONE = Math.PI * 0.22;
+      if (abs < DEAD_ZONE) return 0;
+      const t = (abs - DEAD_ZONE) / (Math.PI - DEAD_ZONE);
+      if (t < 0.5) {
+        return 0.7 + (t / 0.5) * 0.3;
+      } else {
+        return 1.0 - ((t - 0.5) / 0.5) * 0.45;
+      }
+    }
+
+    function getSailCalibrationFactor(boatAngle, windAngle, sailAngle) {
+      const windFrom = windAngle + Math.PI;
+      let relative = boatAngle - windFrom;
+      while (relative >  Math.PI) relative -= Math.PI * 2;
+      while (relative < -Math.PI) relative += Math.PI * 2;
+      const abs = Math.abs(relative);
+      const t = abs / Math.PI;
+      const optimalSail = (Math.PI / 12) + t * (Math.PI * 0.42);
+      const diff = Math.abs(Math.abs(sailAngle) - optimalSail);
+      const TOLERANCE = Math.PI / 12;
+      if (diff < TOLERANCE) return 1.0;
+      const penalty = (diff - TOLERANCE) / (Math.PI * 0.5);
+      return Math.max(0, 1.0 - penalty);
+    }
+
     // ── PARTÍCULAS ────────────────────────────────────────────────────────────
     function initParticles() {
       particles.length = 0;
@@ -597,15 +634,7 @@
       }
     }
 
-    function drawParticles() {
-      const canvas = document.getElementById('wind-canvas');
-      const ctx    = canvas.getContext('2d');
-      const stage  = document.getElementById('vn-stage');
-      if (canvas.width !== stage.clientWidth) {
-        canvas.width  = stage.clientWidth;
-        canvas.height = stage.clientHeight;
-      }
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    function drawWindParticles(ctx) {
       for (const p of particles) {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
@@ -614,18 +643,153 @@
       }
     }
 
+    function drawAll() {
+      const canvas  = document.getElementById('wind-canvas');
+      const ctx     = canvas.getContext('2d');
+      const stage   = document.getElementById('vn-stage');
+      if (canvas.width !== stage.clientWidth) {
+        canvas.width  = stage.clientWidth;
+        canvas.height = stage.clientHeight;
+      }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawWindParticles(ctx);
+      drawSail(ctx);
+      drawHUD(ctx, canvas.width, canvas.height);
+    }
+
+    function drawSail(ctx) {
+      if (gameState !== 'walking') return;
+      const ox = player.x;
+      const oy = player.y;
+      const SAIL_LENGTH = 28;
+      const angle = boatAngle + sailAngle;
+      const ex = ox + Math.cos(angle) * SAIL_LENGTH;
+      const ey = oy + Math.sin(angle) * SAIL_LENGTH;
+      ctx.beginPath();
+      ctx.moveTo(ox, oy);
+      ctx.lineTo(ex, ey);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+      ctx.lineWidth   = 2;
+      ctx.lineCap     = 'round';
+      ctx.stroke();
+    }
+
+    function drawHUD(ctx, W, H) {
+      if (gameState !== 'walking') return;
+      const margin  = 16;
+      const size    = 90;
+      const cx      = margin + size / 2;
+      const roseY   = H - margin - size + 30;
+      const hudTop  = H - margin - size;
+
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.roundRect(margin, hudTop, size, size, 4);
+      ctx.fill();
+      ctx.stroke();
+
+      const R = 22;
+
+      ctx.beginPath();
+      ctx.arc(cx, roseY, R, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      drawArrow(ctx, cx, roseY, wind.angle + Math.PI, R, 'rgba(255,255,255,0.9)', 1.8);
+      drawArrow(ctx, cx, roseY, boatAngle, R * 0.75, 'rgba(255,255,255,0.5)', 1.2);
+
+      {
+        const sailWorldAngle = boatAngle + sailAngle;
+        const len = R * 0.6;
+        const sx1 = cx + Math.cos(sailWorldAngle) * len;
+        const sy1 = roseY + Math.sin(sailWorldAngle) * len;
+        const sx2 = cx - Math.cos(sailWorldAngle) * len;
+        const sy2 = roseY - Math.sin(sailWorldAngle) * len;
+        ctx.beginPath();
+        ctx.moveTo(sx1, sy1);
+        ctx.lineTo(sx2, sy2);
+        ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      ctx.font = '8px monospace';
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.textAlign = 'center';
+      ctx.fillText('WIND · SAIL · HELM', cx, hudTop + size - 22);
+
+      const barY    = H - margin - 10;
+      const barW    = size - 16;
+      const barLeft = margin + 8;
+      const segW    = (barW - 4) / 5;
+      const segH    = 4;
+
+      for (let i = 0; i < 5; i++) {
+        const filled = sailEfficiency >= (i + 1) / 5;
+        ctx.fillStyle = filled
+          ? 'rgba(255,255,255,0.8)'
+          : 'rgba(255,255,255,0.12)';
+        ctx.fillRect(
+          barLeft + i * (segW + 1),
+          barY - segH,
+          segW,
+          segH
+        );
+      }
+    }
+
+    function drawArrow(ctx, cx, cy, angle, length, color, width) {
+      const ex = cx + Math.cos(angle) * length;
+      const ey = cy + Math.sin(angle) * length;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(ex, ey);
+      ctx.strokeStyle = color;
+      ctx.lineWidth   = width;
+      ctx.lineCap     = 'round';
+      ctx.stroke();
+      const headLen = 5;
+      const headAngle = Math.PI / 6;
+      ctx.beginPath();
+      ctx.moveTo(ex, ey);
+      ctx.lineTo(
+        ex - headLen * Math.cos(angle - headAngle),
+        ey - headLen * Math.sin(angle - headAngle)
+      );
+      ctx.moveTo(ex, ey);
+      ctx.lineTo(
+        ex - headLen * Math.cos(angle + headAngle),
+        ey - headLen * Math.sin(angle + headAngle)
+      );
+      ctx.stroke();
+    }
+
     // ── MOVIMENTO DO BARCO ────────────────────────────────────────────────────
     function updatePlayer() {
       const stage = document.getElementById('vn-stage');
       const W = stage.clientWidth;
       const H = stage.clientHeight;
+      const wv = getWindVector();
 
       if (keys['ArrowLeft']  || keys['KeyA']) boatAngle -= ROTATION_SPEED;
       if (keys['ArrowRight'] || keys['KeyD']) boatAngle += ROTATION_SPEED;
 
-      const wv = getWindVector();
-      player.x += Math.cos(boatAngle) * BOAT_SPEED + wv.x * WIND_DRIFT;
-      player.y += Math.sin(boatAngle) * BOAT_SPEED + wv.y * WIND_DRIFT;
+      if (keys['KeyQ']) sailAngle = Math.max(-SAIL_MAX_ANGLE, sailAngle - SAIL_ROTATION_SPEED);
+      if (keys['KeyW']) sailAngle = Math.min( SAIL_MAX_ANGLE, sailAngle + SAIL_ROTATION_SPEED);
+
+      const pointFactor = getPointOfSailFactor(boatAngle, wind.angle);
+      const sailFactor  = getSailCalibrationFactor(boatAngle, wind.angle, sailAngle);
+      sailEfficiency = pointFactor * sailFactor;
+
+      const BOAT_SPEED_MAX = 2.8;
+      const speed = BOAT_SPEED_MAX * sailEfficiency;
+
+      const DRIFT = 0.15;
+      player.x += Math.cos(boatAngle) * speed + wv.x * DRIFT;
+      player.y += Math.sin(boatAngle) * speed + wv.y * DRIFT;
 
       player.x = Math.max(0, Math.min(W, player.x));
       player.y = Math.max(0, Math.min(H, player.y));
@@ -640,8 +804,8 @@
       if (gameState !== 'walking') return;
       updateWind();
       updateParticles();
-      drawParticles();
       updatePlayer();
+      drawAll();
       if (dist(player, dest) <= TRIGGER_DIST) {
         startDialogue();
         return;
@@ -837,7 +1001,8 @@
       }
 
       if (gameState === 'walking') {
-        if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code)) {
+        if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',
+             'KeyQ','KeyW','KeyA','KeyD'].includes(e.code)) {
           e.preventDefault();
         }
         return;
