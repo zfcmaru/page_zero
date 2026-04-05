@@ -81,49 +81,59 @@
       pointer-events: none;
     }
 
-    /* ── CENA VN ───────────────────────────────────────── */
+    /* ── CENA VN — wrapper fullscreen ─────────────────── */
     #vn-scene {
       position: absolute;
       inset: 0;
       display: none;
-      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       opacity: 0;
       transition: opacity 0.6s ease;
+      background: #08040f;
     }
 
-    #center-viewport {
-      flex: 1;
-      position: relative;
-      overflow: hidden;
+    /* Layout interno: coluna (viewport + bottom) */
+    #vn-layout {
+      display: flex;
+      flex-direction: column;
+      width: min(96vw, calc((100vh - 56px) * 1.45));
     }
 
-    /* Frame decorativo — borda dupla fina */
-    #vn-frame {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      z-index: 5;
+    /* ── MOLDURA EXTERNA ───────────────────────────────── */
+    #vn-frame-outer {
+      border: 3px solid #2a1a4e;
       box-shadow:
-        inset 0 0 0 4px #0d0920,
-        inset 0 0 0 7px #3a2a5e,
-        inset 0 0 0 10px #0d0920;
+        0 0 0 1px #08040f,
+        0 0 0 4px #4a2a8e,
+        0 0 0 5px #08040f;
+      line-height: 0;
+      flex-shrink: 0;
+    }
+
+    /* ── VIEWPORT ──────────────────────────────────────── */
+    #center-viewport {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      background: #000;
     }
 
     #vn-background {
       position: absolute;
       inset: 0;
-      background-color: #000;
       background-size: cover;
-      background-position: center top;
+      background-position: center;
       background-repeat: no-repeat;
     }
 
-    /* Personagem à direita */
+    /* Personagem à direita dentro do viewport */
     #vn-character {
       position: absolute;
       bottom: 0;
       right: 0;
-      height: 95%;
+      height: 100%;
       pointer-events: none;
     }
 
@@ -135,79 +145,88 @@
       display: block;
     }
 
-    /* ── CHOICE UI — canto inferior direito ────────────── */
+    /* ── FAIXA INFERIOR: choices + dialogue ────────────── */
+    #vn-bottom {
+      display: flex;
+      align-items: stretch;
+      border: 3px solid #2a1a4e;
+      border-top: none;
+      box-shadow:
+        0 0 0 1px #08040f,
+        4px 4px 0 4px #4a2a8e;
+    }
+
+    /* ── CHOICES — painel esquerdo ─────────────────────── */
     #choice-container {
-      position: absolute;
-      bottom: 1.5rem;
-      right: 1.5rem;
       display: none;
       flex-direction: column;
-      gap: 0.4rem;
-      z-index: 10;
-      max-width: 280px;
+      justify-content: center;
+      gap: 0.35rem;
+      padding: 0.75rem;
+      min-width: 180px;
+      max-width: 220px;
+      border-right: 2px solid #2a1a4e;
+      background: #060310;
+      flex-shrink: 0;
     }
 
     .choice-btn {
       font-family: monospace;
-      font-size: 0.78rem;
-      letter-spacing: 0.06em;
-      color: #e8e4ff;
-      background: rgba(10, 5, 25, 0.88);
-      border: 1px solid #5a35ab;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      color: #c8b8ff;
+      background: transparent;
+      border: 1px solid #3a2a6e;
       border-left: 3px solid #7a4fc0;
-      padding: 0.55rem 0.9rem;
+      padding: 0.5rem 0.75rem;
       cursor: pointer;
       text-align: left;
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      transition: background 0.15s, border-color 0.15s;
+      line-height: 1.4;
+      transition: background 0.15s, color 0.15s;
     }
 
     .choice-btn:hover,
     .choice-btn:focus {
-      background: rgba(90, 53, 171, 0.35);
-      border-color: #a07de0;
+      background: rgba(90, 53, 171, 0.3);
+      color: #fff;
       outline: none;
     }
 
-    /* ── CAIXA DE DIÁLOGO ──────────────────────────────── */
+    /* ── DIALOGUE BOX ──────────────────────────────────── */
     #dialogue-box {
-      background: rgba(8, 4, 20, 0.92);
-      border-top: 2px solid #3a2a5e;
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      padding: 1rem 2rem 0.75rem;
-      min-height: 140px;
+      flex: 1;
+      padding: 0.85rem 1.25rem 0.65rem;
       cursor: pointer;
       user-select: none;
       -webkit-user-select: none;
+      background: #060310;
+      min-height: 110px;
     }
 
     #name-box {
       font-family: monospace;
-      font-size: 0.72rem;
-      font-weight: 600;
-      letter-spacing: 0.12em;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: #7a4fc0;
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.35rem;
       min-height: 1rem;
     }
 
     #dialogue-text {
       font-family: 'Lora', serif;
-      font-size: 1rem;
-      line-height: 1.8;
+      font-size: 0.95rem;
+      line-height: 1.75;
       color: #e8e4ff;
-      min-height: 3rem;
+      min-height: 2.8rem;
     }
 
     #advance-hint {
       font-family: monospace;
-      font-size: 0.6rem;
-      color: #7a4fc0;
+      font-size: 0.55rem;
+      color: #5a35ab;
       text-align: right;
-      margin-top: 0.4rem;
+      margin-top: 0.3rem;
       opacity: 0;
       animation: hint-pulse 1.6s ease-in-out infinite;
     }
@@ -248,16 +267,45 @@
     }
 
     @keyframes hint-pulse {
-      0%, 100% { opacity: 0.25; }
+      0%, 100% { opacity: 0.2; }
       50%       { opacity: 1; }
     }
 
+    /* ── RESPONSIVO ────────────────────────────────────── */
     @media (max-width: 600px) {
-      #vn-character { height: 85%; }
-      #dialogue-box { padding: 0.75rem 1rem; min-height: 110px; }
-      #dialogue-text { font-size: 0.9rem; }
-      #choice-container { max-width: 200px; right: 0.75rem; bottom: 0.75rem; }
-      .choice-btn { font-size: 0.72rem; padding: 0.45rem 0.7rem; }
+      #vn-layout {
+        width: 100vw;
+      }
+
+      #vn-frame-outer {
+        border-left: none;
+        border-right: none;
+        box-shadow: none;
+      }
+
+      #vn-bottom {
+        border-left: none;
+        border-right: none;
+        box-shadow: none;
+      }
+
+      #choice-container {
+        min-width: 120px;
+        max-width: 140px;
+        padding: 0.5rem;
+      }
+
+      .choice-btn {
+        font-size: 0.68rem;
+        padding: 0.4rem 0.5rem;
+      }
+
+      #dialogue-box {
+        padding: 0.65rem 0.85rem;
+        min-height: 90px;
+      }
+
+      #dialogue-text { font-size: 0.85rem; }
     }
   </style>
 </head>
@@ -287,19 +335,31 @@
     <!-- Cena VN -->
     <div id="vn-scene">
 
-      <div id="center-viewport">
-        <div id="vn-frame"></div>
-        <div id="vn-background"></div>
-        <div id="vn-character">
-          <img id="char-img" src="../art/Girl_neutral.png" alt="">
-        </div>
-        <div id="choice-container"></div>
-      </div>
+      <div id="vn-layout">
 
-      <div id="dialogue-box">
-        <div id="name-box"></div>
-        <div id="dialogue-text"></div>
-        <div id="advance-hint">&#9660;</div>
+        <!-- Moldura + viewport -->
+        <div id="vn-frame-outer">
+          <div id="center-viewport">
+            <div id="vn-background"></div>
+            <div id="vn-character">
+              <img id="char-img" src="../art/Girl_neutral.png" alt="">
+            </div>
+          </div>
+        </div>
+
+        <!-- Faixa inferior: choices + dialogue -->
+        <div id="vn-bottom">
+
+          <div id="choice-container"></div>
+
+          <div id="dialogue-box">
+            <div id="name-box"></div>
+            <div id="dialogue-text"></div>
+            <div id="advance-hint">&#9660;</div>
+          </div>
+
+        </div>
+
       </div>
 
     </div>
@@ -561,10 +621,6 @@
       isChoosing = true;
       const choice = CHOICES[choiceId];
 
-      // Esconde dialogue box
-      els.dialogueBox.style.display = 'none';
-
-      // Monta botões
       els.choiceContainer.innerHTML = '';
       choice.options.forEach(opt => {
         const btn = document.createElement('button');
@@ -573,12 +629,16 @@
         btn.addEventListener('click', () => {
           els.choiceContainer.style.display = 'none';
           els.choiceContainer.innerHTML = '';
-          els.dialogueBox.style.display = '';
           isChoosing = false;
           showBeat(opt.next);
         });
         els.choiceContainer.appendChild(btn);
       });
+
+      // Limpa dialogue enquanto escolha está ativa
+      els.nameBox.textContent = '';
+      els.dialogText.textContent = '';
+      els.hint.style.opacity = '0';
 
       els.choiceContainer.style.display = 'flex';
     }
