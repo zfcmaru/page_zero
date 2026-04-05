@@ -18,7 +18,7 @@
       background: var(--bg);
     }
 
-    /* ── TELA INICIAL ──────────────────────────────────────────── */
+    /* ── TELA INICIAL ──────────────────────────────────── */
     #vn-start-screen {
       position: absolute;
       inset: 0;
@@ -41,7 +41,7 @@
       animation: hint-pulse 2s ease-in-out infinite;
     }
 
-    /* ── MAPA ──────────────────────────────────────────────────── */
+    /* ── MAPA ──────────────────────────────────────────── */
     #vn-map {
       position: absolute;
       inset: 0;
@@ -81,7 +81,7 @@
       pointer-events: none;
     }
 
-    /* ── CENA VN — HUD LAYOUT ──────────────────────────────────── */
+    /* ── CENA VN ───────────────────────────────────────── */
     #vn-scene {
       position: absolute;
       inset: 0;
@@ -89,126 +89,24 @@
       flex-direction: column;
       opacity: 0;
       transition: opacity 0.6s ease;
-      background: #0f0720;
-      /* HUD custom properties */
-      --hud-bg:      #0f0720;
-      --hud-border:  #5a35ab;
-      --hud-accent:  #7a4fc0;
-      --hud-green:   #39ff14;
-      --hud-yellow:  #f5c518;
-      --hud-red:     #e63535;
-      --hud-mercury: #cc2222;
-      --hud-text:    #d0c8ff;
     }
 
-    /* HUD row */
-    #hud-row {
-      display: flex;
-      flex: 1;
-      overflow: hidden;
-      border-bottom: 2px solid var(--hud-border);
-    }
-
-    /* ── PAINEL ESQUERDO ────────────────────────────────────────── */
-    #hud-left {
-      width: 22%;
-      min-width: 130px;
-      background: var(--hud-bg);
-      border-right: 2px solid var(--hud-border);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      padding: 8px;
-    }
-
-    #hud-portrait {
-      width: 100%;
-      aspect-ratio: 1;
-      background: #08031a;
-      border: 2px solid var(--hud-border);
-      flex-shrink: 0;
-    }
-
-    .hud-monitor {
-      background: #020e04;
-      border: 2px solid var(--hud-border);
-      padding: 4px 6px;
-      flex-shrink: 0;
-    }
-
-    .monitor-label {
-      font-family: monospace;
-      font-size: 0.6rem;
-      color: var(--hud-green);
-      margin-bottom: 2px;
-    }
-
-    .monitor-val { color: #fff; }
-
-    .monitor-wave {
-      display: block;
-      width: 100%;
-      height: 40px;
-    }
-
-    .wave-line {
-      fill: none;
-      stroke: var(--hud-green);
-      stroke-width: 1.5;
-    }
-
-    #hud-controls {
-      display: flex;
-      gap: 8px;
-      margin-top: auto;
-      align-items: flex-end;
-    }
-
-    #hud-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .hud-btn {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      border: none;
-      cursor: default;
-      flex-shrink: 0;
-    }
-
-    .hud-btn--yellow { background: var(--hud-yellow); }
-    .hud-btn--red    { background: var(--hud-red); }
-
-    #hud-bars {
-      display: flex;
-      gap: 4px;
-      align-items: flex-end;
-      flex: 1;
-    }
-
-    .hud-bar-track {
-      flex: 1;
-      height: 60px;
-      background: #1a0a2e;
-      border: 1px solid var(--hud-border);
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-    }
-
-    .hud-bar-fill {
-      width: 100%;
-      background: linear-gradient(to top, #39ff14, #9fff8a);
-    }
-
-    /* ── VIEWPORT CENTRAL ──────────────────────────────────────── */
     #center-viewport {
       flex: 1;
       position: relative;
       overflow: hidden;
+    }
+
+    /* Frame decorativo — borda dupla fina */
+    #vn-frame {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 5;
+      box-shadow:
+        inset 0 0 0 4px #0d0920,
+        inset 0 0 0 7px #3a2a5e,
+        inset 0 0 0 10px #0d0920;
     }
 
     #vn-background {
@@ -220,11 +118,11 @@
       background-repeat: no-repeat;
     }
 
+    /* Personagem à direita */
     #vn-character {
       position: absolute;
       bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
+      right: 0;
       height: 95%;
       pointer-events: none;
     }
@@ -233,71 +131,53 @@
       height: 100%;
       width: auto;
       object-fit: contain;
-      object-position: bottom center;
+      object-position: bottom right;
       display: block;
     }
 
-    /* ── PAINEL DIREITO ─────────────────────────────────────────── */
-    #hud-right {
-      width: 11%;
-      min-width: 64px;
-      background: var(--hud-bg);
-      border-left: 2px solid var(--hud-border);
-      display: flex;
-      justify-content: space-evenly;
-      align-items: center;
-      padding: 12px 4px;
-    }
-
-    .hud-thermo {
-      display: flex;
+    /* ── CHOICE UI — canto inferior direito ────────────── */
+    #choice-container {
+      position: absolute;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      display: none;
       flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      height: 80%;
+      gap: 0.4rem;
+      z-index: 10;
+      max-width: 280px;
     }
 
-    .thermo-label {
+    .choice-btn {
       font-family: monospace;
-      font-size: 0.65rem;
-      color: var(--hud-text);
-      flex-shrink: 0;
+      font-size: 0.78rem;
+      letter-spacing: 0.06em;
+      color: #e8e4ff;
+      background: rgba(10, 5, 25, 0.88);
+      border: 1px solid #5a35ab;
+      border-left: 3px solid #7a4fc0;
+      padding: 0.55rem 0.9rem;
+      cursor: pointer;
+      text-align: left;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      transition: background 0.15s, border-color 0.15s;
     }
 
-    .thermo-tube {
-      flex: 1;
-      width: 12px;
-      background: #1a0a2e;
-      border: 2px solid var(--hud-border);
-      border-radius: 6px 6px 0 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      overflow: hidden;
+    .choice-btn:hover,
+    .choice-btn:focus {
+      background: rgba(90, 53, 171, 0.35);
+      border-color: #a07de0;
+      outline: none;
     }
 
-    .thermo-mercury {
-      width: 100%;
-      background: linear-gradient(to top, var(--hud-mercury), #ff6666);
-    }
-
-    .thermo-bulb {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 35% 35%, #ff6666, var(--hud-mercury));
-      border: 2px solid var(--hud-border);
-      flex-shrink: 0;
-    }
-
-    /* ── CAIXA DE DIÁLOGO ──────────────────────────────────────── */
+    /* ── CAIXA DE DIÁLOGO ──────────────────────────────── */
     #dialogue-box {
-      background: rgba(15, 7, 32, 0.95);
-      border-top: 2px solid var(--hud-border);
+      background: rgba(8, 4, 20, 0.92);
+      border-top: 2px solid #3a2a5e;
       backdrop-filter: blur(4px);
       -webkit-backdrop-filter: blur(4px);
       padding: 1rem 2rem 0.75rem;
-      min-height: 160px;
+      min-height: 140px;
       cursor: pointer;
       user-select: none;
       -webkit-user-select: none;
@@ -309,7 +189,7 @@
       font-weight: 600;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      color: var(--hud-accent);
+      color: #7a4fc0;
       margin-bottom: 0.4rem;
       min-height: 1rem;
     }
@@ -325,37 +205,14 @@
     #advance-hint {
       font-family: monospace;
       font-size: 0.6rem;
-      color: var(--hud-accent);
+      color: #7a4fc0;
       text-align: right;
       margin-top: 0.4rem;
       opacity: 0;
       animation: hint-pulse 1.6s ease-in-out infinite;
     }
 
-    /* ── BARRA INFERIOR ─────────────────────────────────────────── */
-    #bottom-bar {
-      display: flex;
-      justify-content: center;
-      background: var(--hud-bg);
-      border-top: 1px solid var(--hud-border);
-      padding: 4px 0;
-    }
-
-    .bar-btn {
-      font-family: monospace;
-      font-size: 0.65rem;
-      letter-spacing: 0.06em;
-      color: var(--hud-text);
-      background: transparent;
-      border: none;
-      border-right: 1px solid var(--hud-border);
-      padding: 4px 16px;
-      cursor: default;
-    }
-
-    .bar-btn:last-child { border-right: none; }
-
-    /* ── TELA FINAL ────────────────────────────────────────────── */
+    /* ── TELA FINAL ────────────────────────────────────── */
     #vn-end-screen {
       position: absolute;
       inset: 0;
@@ -396,18 +253,11 @@
     }
 
     @media (max-width: 600px) {
-      #hud-left  { width: 80px; min-width: 80px; }
-      #hud-right { width: 48px; min-width: 48px; }
-      #hud-portrait { aspect-ratio: unset; height: 64px; }
-      .monitor-wave { height: 28px; }
-      #hud-controls { gap: 4px; }
-      .hud-btn { width: 24px; height: 24px; }
-      .hud-bar-track { height: 40px; }
       #vn-character { height: 85%; }
-      #dialogue-box { padding: 0.75rem 1rem; min-height: 130px; }
+      #dialogue-box { padding: 0.75rem 1rem; min-height: 110px; }
       #dialogue-text { font-size: 0.9rem; }
-      .thermo-tube { width: 8px; }
-      .thermo-bulb { width: 16px; height: 16px; }
+      #choice-container { max-width: 200px; right: 0.75rem; bottom: 0.75rem; }
+      .choice-btn { font-size: 0.72rem; padding: 0.45rem 0.7rem; }
     }
   </style>
 </head>
@@ -437,82 +287,19 @@
     <!-- Cena VN -->
     <div id="vn-scene">
 
-      <!-- ── HUD ROW ─────────────────────────────────────────────── -->
-      <div id="hud-row">
-
-        <!-- PAINEL ESQUERDO -->
-        <div id="hud-left">
-
-          <div id="hud-portrait"><!-- placeholder --></div>
-
-          <div class="hud-monitor">
-            <div class="monitor-label">SYS <span class="monitor-val">856 BPM</span></div>
-            <svg class="monitor-wave" viewBox="0 0 120 30" preserveAspectRatio="none">
-              <polyline class="wave-line"
-                points="0,15 10,15 14,4 18,26 22,4 26,26 30,15 40,15 44,4 48,26 52,4 56,26 60,15 80,15 84,8 88,22 92,8 96,22 100,15 120,15"/>
-            </svg>
-          </div>
-
-          <div class="hud-monitor">
-            <div class="monitor-label">BIO <span class="monitor-val">856 BPM</span></div>
-            <svg class="monitor-wave" viewBox="0 0 120 30" preserveAspectRatio="none">
-              <polyline class="wave-line"
-                points="0,15 8,15 12,6 16,24 20,10 24,20 28,15 50,15 54,5 58,25 62,5 66,25 70,15 90,15 94,9 98,21 102,9 106,21 110,15 120,15"/>
-            </svg>
-          </div>
-
-          <div id="hud-controls">
-            <div id="hud-buttons">
-              <div class="hud-btn hud-btn--yellow"></div>
-              <div class="hud-btn hud-btn--red"></div>
-            </div>
-            <div id="hud-bars">
-              <div class="hud-bar-track"><div class="hud-bar-fill" style="height:72%"></div></div>
-              <div class="hud-bar-track"><div class="hud-bar-fill" style="height:45%"></div></div>
-              <div class="hud-bar-track"><div class="hud-bar-fill" style="height:88%"></div></div>
-            </div>
-          </div>
-
-        </div><!-- /#hud-left -->
-
-        <!-- VIEWPORT CENTRAL -->
-        <div id="center-viewport">
-          <div id="vn-background"></div>
-          <div id="vn-character">
-            <img id="char-img" src="../art/Girl_1_sprite_1.png" alt="Character">
-          </div>
+      <div id="center-viewport">
+        <div id="vn-frame"></div>
+        <div id="vn-background"></div>
+        <div id="vn-character">
+          <img id="char-img" src="../art/Girl_neutral.png" alt="">
         </div>
+        <div id="choice-container"></div>
+      </div>
 
-        <!-- PAINEL DIREITO -->
-        <div id="hud-right">
-          <div class="hud-thermo">
-            <div class="thermo-label">°F</div>
-            <div class="thermo-tube"><div class="thermo-mercury" style="height:40%"></div></div>
-            <div class="thermo-bulb"></div>
-          </div>
-          <div class="hud-thermo">
-            <div class="thermo-label">°C</div>
-            <div class="thermo-tube"><div class="thermo-mercury" style="height:40%"></div></div>
-            <div class="thermo-bulb"></div>
-          </div>
-        </div>
-
-      </div><!-- /#hud-row -->
-
-      <!-- CAIXA DE DIÁLOGO -->
       <div id="dialogue-box">
         <div id="name-box"></div>
         <div id="dialogue-text"></div>
         <div id="advance-hint">&#9660;</div>
-      </div>
-
-      <!-- BARRA INFERIOR -->
-      <div id="bottom-bar">
-        <button class="bar-btn">History</button>
-        <button class="bar-btn">Skip</button>
-        <button class="bar-btn">Auto</button>
-        <button class="bar-btn">Save</button>
-        <button class="bar-btn">Prefs</button>
       </div>
 
     </div>
@@ -526,42 +313,106 @@
   </div>
 
   <script>
-    // ── SCRIPT DA HISTÓRIA ─────────────────────────────────────────────────────
-    const SCRIPT = [
-      {
+    // ── SCRIPT DA HISTÓRIA (grafo de nós) ─────────────────────────────────────
+    const SCRIPT = {
+      s01: {
         speaker: "",
         text: "...",
-        bg: "../art/IMG_8371.jpeg"
+        bg: "../art/Background.png",
+        sprite: "neutral",
+        next: "s02"
       },
-      {
-        speaker: "???",
-        text: "You made it here."
+      s02: {
+        speaker: "Player",
+        text: "Hey... have you seen a girl around here? Her name's Mika. My sister.",
+        sprite: "neutral",
+        next: "s03"
       },
-      {
-        speaker: "???",
-        text: "I'm not sure what I expected to find."
+      s03: {
+        speaker: "Kanon",
+        text: "Mika? Doesn't ring a bell.",
+        sprite: "neutral",
+        next: "s04"
       },
-      {
-        speaker: "???",
-        text: "But I'm glad you came."
+      s04: {
+        speaker: "Kanon",
+        text: "I'm Kanon, by the way. Fitness content creator. I basically live at this pier.",
+        sprite: "neutral",
+        next: "s05"
+      },
+      s05: {
+        speaker: "Player",
+        text: "Right. I'm just passing through, looking for her.",
+        sprite: "neutral",
+        next: "s06"
+      },
+      s06: {
+        speaker: "Kanon",
+        text: "Well, while you wait — come windsurfing with me. Wind's perfect right now.",
+        sprite: "neutral",
+        next: "choice_01"
+      },
+
+      // Branch YES
+      choice_yes: {
+        speaker: "Player",
+        text: "Sure. I've got time.",
+        sprite: "neutral",
+        next: "s_yes_end"
+      },
+      s_yes_end: {
+        speaker: "Kanon",
+        text: "Let's go then.",
+        sprite: "neutral",
+        next: "END"
+      },
+
+      // Branch NO
+      choice_no: {
+        speaker: "Player",
+        text: "I'd rather not.",
+        sprite: "angry",
+        next: "s_no_end"
+      },
+      s_no_end: {
+        speaker: "Kanon",
+        text: "You're so boring!",
+        sprite: "angry",
+        next: "END"
       }
-    ];
+    };
+
+    const CHOICES = {
+      choice_01: {
+        options: [
+          { label: "Sure, I've got time.",  next: "choice_yes" },
+          { label: "I'd rather not.",       next: "choice_no"  }
+        ]
+      }
+    };
+
+    const SPRITES = {
+      neutral:   "../art/Girl_neutral.png",
+      semi_rest: "../art/Girl_semi_rest.png",
+      rest:      "../art/Girl_rest.png",
+      angry:     "../art/Girl_angry.png"
+    };
 
     // ── ESTADO ────────────────────────────────────────────────────────────────
-    // gameState: 'start' | 'walking' | 'dialogue' | 'end'
-    let gameState = 'start';
+    let gameState      = 'start';
+    let currentBeatId  = null;
+    let isBlinking     = false;
+    let isChoosing     = false;
+    let blinkTimer     = null;
+    let vnTyping       = false;
+    let vnTypeTimer    = null;
 
-    // Posição do jogador (px, centro do elemento)
     const player = { x: 0, y: 0 };
-    // Posição do destino (px, centro do elemento)
-    const dest = { x: 0, y: 0 };
-
-    const SPEED = 3;
+    const dest   = { x: 0, y: 0 };
+    const SPEED        = 3;
     const TRIGGER_DIST = 40;
-
     const keys = {};
 
-    // Rotação do ponteiro por direção
     const DIR_ROTATION = {
       up:    'translate(-50%, -50%) rotate(0deg)',
       down:  'translate(-50%, -50%) rotate(180deg)',
@@ -572,33 +423,66 @@
 
     // ── ELEMENTOS ─────────────────────────────────────────────────────────────
     const els = {
-      startScreen: document.getElementById('vn-start-screen'),
-      map:         document.getElementById('vn-map'),
-      playerEl:    document.getElementById('player'),
-      destEl:      document.getElementById('destination'),
-      scene:       document.getElementById('vn-scene'),
-      background:  document.getElementById('vn-background'),
-      character:   document.getElementById('vn-character'),
-      charImg:     document.getElementById('char-img'),
-      nameBox:     document.getElementById('name-box'),
-      dialogText:  document.getElementById('dialogue-text'),
-      hint:        document.getElementById('advance-hint'),
-      dialogueBox: document.getElementById('dialogue-box'),
-      endScreen:   document.getElementById('vn-end-screen')
+      startScreen:     document.getElementById('vn-start-screen'),
+      map:             document.getElementById('vn-map'),
+      playerEl:        document.getElementById('player'),
+      destEl:          document.getElementById('destination'),
+      scene:           document.getElementById('vn-scene'),
+      background:      document.getElementById('vn-background'),
+      charImg:         document.getElementById('char-img'),
+      nameBox:         document.getElementById('name-box'),
+      dialogText:      document.getElementById('dialogue-text'),
+      hint:            document.getElementById('advance-hint'),
+      dialogueBox:     document.getElementById('dialogue-box'),
+      choiceContainer: document.getElementById('choice-container'),
+      endScreen:       document.getElementById('vn-end-screen')
     };
+
+    // ── SPRITES ───────────────────────────────────────────────────────────────
+    function setSprite(name) {
+      els.charImg.src = SPRITES[name];
+    }
+
+    // ── BLINK CYCLE ───────────────────────────────────────────────────────────
+    // Ciclo: neutral (3–4s) → semi_rest (80ms) → rest (80ms) → semi_rest (60ms) → volta
+    function blinkCycle() {
+      if (!isBlinking) return;
+      setSprite('neutral');
+      blinkTimer = setTimeout(() => {
+        if (!isBlinking) return;
+        setSprite('semi_rest');
+        blinkTimer = setTimeout(() => {
+          if (!isBlinking) return;
+          setSprite('rest');
+          blinkTimer = setTimeout(() => {
+            if (!isBlinking) return;
+            setSprite('semi_rest');
+            blinkTimer = setTimeout(() => blinkCycle(), 60);
+          }, 80);
+        }, 80);
+      }, 3200 + Math.random() * 1200);
+    }
+
+    function startBlinkCycle() {
+      if (isBlinking) return;
+      isBlinking = true;
+      blinkCycle();
+    }
+
+    function stopBlinkCycle() {
+      isBlinking = false;
+      clearTimeout(blinkTimer);
+    }
 
     // ── MAPA ──────────────────────────────────────────────────────────────────
     function initMap() {
       const stage = document.getElementById('vn-stage');
       const W = stage.clientWidth;
       const H = stage.clientHeight;
-
       player.x = W * 0.15;
       player.y = H * 0.50;
-
-      dest.x = W * 0.75;
-      dest.y = H * 0.50;
-
+      dest.x   = W * 0.75;
+      dest.y   = H * 0.50;
       applyPlayerPos();
       applyDestPos();
     }
@@ -621,7 +505,6 @@
 
     function gameLoop() {
       if (gameState !== 'walking') return;
-
       const stage = document.getElementById('vn-stage');
       const W = stage.clientWidth;
       const H = stage.clientHeight;
@@ -633,17 +516,11 @@
       if (keys['ArrowRight'] || keys['KeyD']) dx += 1;
 
       if (dx !== 0 || dy !== 0) {
-        // Normaliza diagonal
-        if (dx !== 0 && dy !== 0) {
-          dx *= 0.707;
-          dy *= 0.707;
-        }
-
+        if (dx !== 0 && dy !== 0) { dx *= 0.707; dy *= 0.707; }
         player.x = Math.max(0, Math.min(W, player.x + dx * SPEED));
         player.y = Math.max(0, Math.min(H, player.y + dy * SPEED));
         applyPlayerPos();
 
-        // Atualiza rotação
         if      (dy < 0) lastDir = 'up';
         else if (dy > 0) lastDir = 'down';
         else if (dx < 0) lastDir = 'left';
@@ -651,12 +528,10 @@
         els.playerEl.style.transform = DIR_ROTATION[lastDir];
       }
 
-      // Checa chegada
       if (dist(player, dest) <= TRIGGER_DIST) {
         startDialogue();
         return;
       }
-
       rafId = requestAnimationFrame(gameLoop);
     }
 
@@ -672,41 +547,45 @@
     function startDialogue() {
       gameState = 'dialogue';
       cancelAnimationFrame(rafId);
-
-      // Esconde mapa, mostra cena
       els.map.style.display = 'none';
       els.scene.style.display = 'flex';
-      // Força reflow para a transição funcionar
       void els.scene.offsetWidth;
       els.scene.style.opacity = '1';
-
-      vnIndex = 0;
-      showBeat(0);
+      startBlinkCycle();
+      showBeat('s01');
     }
 
     function endVN() {
       gameState = 'end';
+      stopBlinkCycle();
       els.scene.style.display = 'none';
       els.endScreen.style.display = 'flex';
     }
 
     // ── MOTOR VN ──────────────────────────────────────────────────────────────
-    let vnIndex = 0;
-    let vnTyping = false;
-    let vnTypeTimer = null;
+    function showBeat(id) {
+      if (id === 'END') { endVN(); return; }
 
-    function showBeat(index) {
-      if (index >= SCRIPT.length) {
-        endVN();
+      // Nó de choice
+      if (CHOICES[id]) {
+        showChoice(id);
         return;
       }
 
-      const beat = SCRIPT[index];
+      const beat = SCRIPT[id];
+      currentBeatId = id;
 
-      // Fundo
+      // Background
       if (beat.bg) {
-        const url = beat.bg.startsWith('url(') ? beat.bg : `url(${beat.bg})`;
-        els.background.style.backgroundImage = url;
+        els.background.style.backgroundImage = `url(${beat.bg})`;
+      }
+
+      // Sprite e blink
+      if (beat.sprite === 'angry') {
+        stopBlinkCycle();
+        setSprite('angry');
+      } else {
+        if (!isBlinking) startBlinkCycle();
       }
 
       // Nome
@@ -729,7 +608,7 @@
       els.dialogText.textContent = '';
       let i = 0;
       clearInterval(vnTypeTimer);
-      vnTypeTimer = setInterval(function () {
+      vnTypeTimer = setInterval(() => {
         els.dialogText.textContent += text[i];
         i++;
         if (i >= text.length) {
@@ -743,24 +622,52 @@
 
     function advance() {
       if (gameState !== 'dialogue') return;
+      if (isChoosing) return;
+
       if (vnTyping) {
         clearInterval(vnTypeTimer);
         vnTyping = false;
-        els.dialogText.textContent = SCRIPT[vnIndex].text;
+        els.dialogText.textContent = SCRIPT[currentBeatId].text;
         els.hint.style.animationPlayState = 'running';
         els.hint.style.opacity = '0.25';
         return;
       }
-      vnIndex++;
-      showBeat(vnIndex);
+
+      showBeat(SCRIPT[currentBeatId].next);
+    }
+
+    // ── CHOICE UI ─────────────────────────────────────────────────────────────
+    function showChoice(choiceId) {
+      isChoosing = true;
+      const choice = CHOICES[choiceId];
+
+      // Esconde dialogue box
+      els.dialogueBox.style.display = 'none';
+
+      // Monta botões
+      els.choiceContainer.innerHTML = '';
+      choice.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.textContent = opt.label;
+        btn.addEventListener('click', () => {
+          els.choiceContainer.style.display = 'none';
+          els.choiceContainer.innerHTML = '';
+          els.dialogueBox.style.display = '';
+          isChoosing = false;
+          showBeat(opt.next);
+        });
+        els.choiceContainer.appendChild(btn);
+      });
+
+      els.choiceContainer.style.display = 'flex';
     }
 
     // ── EVENTOS ───────────────────────────────────────────────────────────────
     els.startScreen.addEventListener('click', startGame);
-
     els.dialogueBox.addEventListener('click', advance);
 
-    document.addEventListener('keydown', function (e) {
+    document.addEventListener('keydown', function(e) {
       keys[e.code] = true;
 
       if (gameState === 'start') {
@@ -786,7 +693,7 @@
       }
     });
 
-    document.addEventListener('keyup', function (e) {
+    document.addEventListener('keyup', function(e) {
       keys[e.code] = false;
     });
   </script>
