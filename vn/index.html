@@ -252,41 +252,6 @@
       animation: hint-pulse 1.6s ease-in-out infinite;
     }
 
-    /* ── TELA FINAL ────────────────────────────────────── */
-    #vn-end-screen {
-      position: absolute;
-      inset: 0;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 1.5rem;
-      background: var(--bg);
-      z-index: 5;
-    }
-
-    #vn-end-screen p {
-      font-family: 'Lora', serif;
-      font-size: 0.95rem;
-      color: var(--text-muted);
-      letter-spacing: 0.06em;
-    }
-
-    #vn-end-screen a {
-      font-family: 'Inter', sans-serif;
-      font-size: 0.75rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--accent);
-      text-decoration: none;
-      border-bottom: 1px solid transparent;
-      transition: border-color 0.2s;
-    }
-
-    #vn-end-screen a:hover {
-      border-color: var(--accent);
-    }
-
     @keyframes hint-pulse {
       0%, 100% { opacity: 0.2; }
       50%       { opacity: 1; }
@@ -389,7 +354,7 @@
       <canvas id="wind-canvas"></canvas>
       <div id="player"></div>
       <div id="destination"></div>
-      <div id="map-hint">← → helm · Q W sail · reach the marker</div>
+      <div id="map-hint">← → helm · W S motor · reach the marker</div>
       <div id="touch-controls">
         <button id="btn-left"  class="touch-btn">◄</button>
         <button id="btn-right" class="touch-btn">►</button>
@@ -427,12 +392,6 @@
 
     </div>
 
-    <!-- Tela final -->
-    <div id="vn-end-screen">
-      <p>[ end ]</p>
-      <a href="../" target="_top">back to home</a>
-    </div>
-
   </div>
 
   <script src="story.js"></script>
@@ -459,15 +418,15 @@
     };
     let boatAngle = 0;
     const ROTATION_SPEED = 0.045;
-    const BOAT_SPEED     = 2.2;
-    const WIND_DRIFT     = 0.45;
     const PARTICLE_COUNT = 55;
     const particles      = [];
 
-    let sailAngle = 0;
-    const SAIL_ROTATION_SPEED = 0.03;
-    const SAIL_MAX_ANGLE = Math.PI * 0.75;
-    let sailEfficiency = 0;
+    let motorState = 'neutral'; // 'forward' | 'neutral' | 'reverse'
+    let speed = 0;
+    const ACCELERATION = 0.15;
+    const MAX_SPEED    = 4.0;
+    const DRAG         = 0.92;
+    const WIND_FORCE   = 0.08;
 
     // ── ELEMENTOS ─────────────────────────────────────────────────────────────
     const els = {
@@ -483,7 +442,6 @@
       hint:            document.getElementById('advance-hint'),
       dialogueBox:     document.getElementById('dialogue-box'),
       choiceContainer: document.getElementById('choice-container'),
-      endScreen:       document.getElementById('vn-end-screen')
     };
 
     // ── SPRITES ───────────────────────────────────────────────────────────────
@@ -523,18 +481,6 @@
     }
 
     // ── MAPA ──────────────────────────────────────────────────────────────────
-    function initMap() {
-      const stage = document.getElementById('vn-stage');
-      const W = stage.clientWidth;
-      const H = stage.clientHeight;
-      player.x = W * 0.15;
-      player.y = H * 0.50;
-      dest.x   = W * 0.75;
-      dest.y   = H * 0.50;
-      applyPlayerPos();
-      applyDestPos();
-    }
-
     function applyPlayerPos() {
       els.playerEl.style.left = player.x + 'px';
       els.playerEl.style.top  = player.y + 'px';
@@ -568,38 +514,6 @@
         x: Math.cos(wind.angle) * wind.strength,
         y: Math.sin(wind.angle) * wind.strength
       };
-    }
-
-    // ── FÍSICA DE VELA ────────────────────────────────────────────────────────
-    function getPointOfSailFactor(boatAngle, windAngle) {
-      const windFrom = windAngle + Math.PI;
-      let relative = boatAngle - windFrom;
-      while (relative >  Math.PI) relative -= Math.PI * 2;
-      while (relative < -Math.PI) relative += Math.PI * 2;
-      const abs = Math.abs(relative);
-      const DEAD_ZONE = Math.PI * 0.22;
-      if (abs < DEAD_ZONE) return 0;
-      const t = (abs - DEAD_ZONE) / (Math.PI - DEAD_ZONE);
-      if (t < 0.5) {
-        return 0.7 + (t / 0.5) * 0.3;
-      } else {
-        return 1.0 - ((t - 0.5) / 0.5) * 0.45;
-      }
-    }
-
-    function getSailCalibrationFactor(boatAngle, windAngle, sailAngle) {
-      const windFrom = windAngle + Math.PI;
-      let relative = boatAngle - windFrom;
-      while (relative >  Math.PI) relative -= Math.PI * 2;
-      while (relative < -Math.PI) relative += Math.PI * 2;
-      const abs = Math.abs(relative);
-      const t = abs / Math.PI;
-      const optimalSail = (Math.PI / 12) + t * (Math.PI * 0.42);
-      const diff = Math.abs(Math.abs(sailAngle) - optimalSail);
-      const TOLERANCE = Math.PI / 12;
-      if (diff < TOLERANCE) return 1.0;
-      const penalty = (diff - TOLERANCE) / (Math.PI * 0.5);
-      return Math.max(0, 1.0 - penalty);
     }
 
     // ── PARTÍCULAS ────────────────────────────────────────────────────────────
@@ -644,155 +558,114 @@
     }
 
     function drawAll() {
-      const canvas  = document.getElementById('wind-canvas');
-      const ctx     = canvas.getContext('2d');
-      const stage   = document.getElementById('vn-stage');
+      const canvas = document.getElementById('wind-canvas');
+      const ctx    = canvas.getContext('2d');
+      const stage  = document.getElementById('vn-stage');
       if (canvas.width !== stage.clientWidth) {
         canvas.width  = stage.clientWidth;
         canvas.height = stage.clientHeight;
       }
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       drawWindParticles(ctx);
-      drawSail(ctx);
       drawHUD(ctx, canvas.width, canvas.height);
     }
 
-    function drawSail(ctx) {
-      if (gameState !== 'walking') return;
-      const ox = player.x;
-      const oy = player.y;
-      const SAIL_LENGTH = 28;
-      const angle = boatAngle + sailAngle;
-      const ex = ox + Math.cos(angle) * SAIL_LENGTH;
-      const ey = oy + Math.sin(angle) * SAIL_LENGTH;
-      ctx.beginPath();
-      ctx.moveTo(ox, oy);
-      ctx.lineTo(ex, ey);
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
-      ctx.lineWidth   = 2;
-      ctx.lineCap     = 'round';
-      ctx.stroke();
+    function drawGameOver() {
+      const canvas = document.getElementById('wind-canvas');
+      const ctx    = canvas.getContext('2d');
+      const stage  = document.getElementById('vn-stage');
+      canvas.width  = stage.clientWidth;
+      canvas.height = stage.clientHeight;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#fff';
+      ctx.font = '18px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('[ game over ]', canvas.width / 2, canvas.height / 2);
+      ctx.font = '11px monospace';
+      ctx.fillStyle = 'rgba(255,255,255,0.35)';
+      ctx.fillText('press enter to continue', canvas.width / 2, canvas.height / 2 + 32);
+      ctx.textAlign = 'left';
     }
 
     function drawHUD(ctx, W, H) {
       if (gameState !== 'walking') return;
-      const margin  = 16;
-      const size    = 90;
-      const cx      = margin + size / 2;
-      const roseY   = H - margin - size + 30;
-      const hudTop  = H - margin - size;
+      const motorColors = { forward: '#4ade80', neutral: '#94a3b8', reverse: '#fb923c' };
+      const col = motorColors[motorState];
 
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.roundRect(margin, hudTop, size, size, 4);
-      ctx.fill();
-      ctx.stroke();
+      ctx.font = '11px monospace';
+      ctx.fillStyle = col;
+      ctx.textAlign = 'left';
+      ctx.fillText('[ MOTOR: ' + motorState.toUpperCase() + ' ]', 16, H - 16);
 
-      const R = 22;
-
-      ctx.beginPath();
-      ctx.arc(cx, roseY, R, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-
-      drawArrow(ctx, cx, roseY, wind.angle + Math.PI, R, 'rgba(255,255,255,0.9)', 1.8);
-      drawArrow(ctx, cx, roseY, boatAngle, R * 0.75, 'rgba(255,255,255,0.5)', 1.2);
-
-      {
-        const sailWorldAngle = boatAngle + sailAngle;
-        const len = R * 0.6;
-        const sx1 = cx + Math.cos(sailWorldAngle) * len;
-        const sy1 = roseY + Math.sin(sailWorldAngle) * len;
-        const sx2 = cx - Math.cos(sailWorldAngle) * len;
-        const sy2 = roseY - Math.sin(sailWorldAngle) * len;
-        ctx.beginPath();
-        ctx.moveTo(sx1, sy1);
-        ctx.lineTo(sx2, sy2);
-        ctx.strokeStyle = 'rgba(255,255,255,0.35)';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
+      const segments = 5;
+      const filled = Math.round((Math.abs(speed) / MAX_SPEED) * segments);
+      for (let i = 0; i < segments; i++) {
+        ctx.fillStyle = i < filled ? col : 'rgba(255,255,255,0.12)';
+        ctx.fillRect(16 + i * 16, H - 36, 12, 4);
       }
-
-      ctx.font = '8px monospace';
-      ctx.fillStyle = 'rgba(255,255,255,0.3)';
-      ctx.textAlign = 'center';
-      ctx.fillText('WIND · SAIL · HELM', cx, hudTop + size - 22);
-
-      const barY    = H - margin - 10;
-      const barW    = size - 16;
-      const barLeft = margin + 8;
-      const segW    = (barW - 4) / 5;
-      const segH    = 4;
-
-      for (let i = 0; i < 5; i++) {
-        const filled = sailEfficiency >= (i + 1) / 5;
-        ctx.fillStyle = filled
-          ? 'rgba(255,255,255,0.8)'
-          : 'rgba(255,255,255,0.12)';
-        ctx.fillRect(
-          barLeft + i * (segW + 1),
-          barY - segH,
-          segW,
-          segH
-        );
-      }
-    }
-
-    function drawArrow(ctx, cx, cy, angle, length, color, width) {
-      const ex = cx + Math.cos(angle) * length;
-      const ey = cy + Math.sin(angle) * length;
-      ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.lineTo(ex, ey);
-      ctx.strokeStyle = color;
-      ctx.lineWidth   = width;
-      ctx.lineCap     = 'round';
-      ctx.stroke();
-      const headLen = 5;
-      const headAngle = Math.PI / 6;
-      ctx.beginPath();
-      ctx.moveTo(ex, ey);
-      ctx.lineTo(
-        ex - headLen * Math.cos(angle - headAngle),
-        ey - headLen * Math.sin(angle - headAngle)
-      );
-      ctx.moveTo(ex, ey);
-      ctx.lineTo(
-        ex - headLen * Math.cos(angle + headAngle),
-        ey - headLen * Math.sin(angle + headAngle)
-      );
-      ctx.stroke();
     }
 
     // ── MOVIMENTO DO BARCO ────────────────────────────────────────────────────
+    function tickPhysics(state, input) {
+      const next = Object.assign({}, state);
+
+      if (input.left)  next.heading -= ROTATION_SPEED;
+      if (input.right) next.heading += ROTATION_SPEED;
+
+      if (input.forward)      next.motorState = 'forward';
+      else if (input.reverse) next.motorState = 'reverse';
+      else                    next.motorState = 'neutral';
+
+      if (next.motorState === 'forward')
+        next.speed = Math.min(next.speed + ACCELERATION, MAX_SPEED);
+      else if (next.motorState === 'reverse')
+        next.speed = Math.max(next.speed - ACCELERATION, -MAX_SPEED * 0.6);
+      else
+        next.speed = next.speed * DRAG;
+
+      const windX = Math.cos(next.windAngle) * WIND_FORCE;
+      const windY = Math.sin(next.windAngle) * WIND_FORCE;
+
+      next.x = state.x + Math.cos(next.heading) * next.speed + windX;
+      next.y = state.y + Math.sin(next.heading) * next.speed + windY;
+
+      return next;
+    }
+
     function updatePlayer() {
       const stage = document.getElementById('vn-stage');
       const W = stage.clientWidth;
       const H = stage.clientHeight;
-      const wv = getWindVector();
 
-      if (keys['ArrowLeft']  || keys['KeyA']) boatAngle -= ROTATION_SPEED;
-      if (keys['ArrowRight'] || keys['KeyD']) boatAngle += ROTATION_SPEED;
+      const input = {
+        left:    !!(keys['ArrowLeft']  || keys['KeyA']),
+        right:   !!(keys['ArrowRight'] || keys['KeyD']),
+        forward: !!(keys['KeyW'] || keys['ArrowUp']),
+        reverse: !!(keys['KeyS'] || keys['ArrowDown'])
+      };
 
-      if (keys['KeyQ']) sailAngle = Math.max(-SAIL_MAX_ANGLE, sailAngle - SAIL_ROTATION_SPEED);
-      if (keys['KeyW']) sailAngle = Math.min( SAIL_MAX_ANGLE, sailAngle + SAIL_ROTATION_SPEED);
+      const state = {
+        x: player.x, y: player.y,
+        heading: boatAngle, speed: speed,
+        motorState: motorState,
+        windAngle: wind.angle
+      };
 
-      const pointFactor = getPointOfSailFactor(boatAngle, wind.angle);
-      const sailFactor  = getSailCalibrationFactor(boatAngle, wind.angle, sailAngle);
-      sailEfficiency = pointFactor * sailFactor;
+      const next = tickPhysics(state, input);
 
-      const BOAT_SPEED_MAX = 2.8;
-      const speed = BOAT_SPEED_MAX * sailEfficiency;
+      if (next.x < 0 || next.x > W || next.y < 0 || next.y > H) {
+        gameState = 'game_over';
+        els.map.style.display = 'none';
+        return;
+      }
 
-      const DRIFT = 0.15;
-      player.x += Math.cos(boatAngle) * speed + wv.x * DRIFT;
-      player.y += Math.sin(boatAngle) * speed + wv.y * DRIFT;
-
-      player.x = Math.max(0, Math.min(W, player.x));
-      player.y = Math.max(0, Math.min(H, player.y));
+      player.x   = next.x;
+      player.y   = next.y;
+      boatAngle  = next.heading;
+      speed      = next.speed;
+      motorState = next.motorState;
 
       const degrees = boatAngle * (180 / Math.PI);
       els.playerEl.style.left      = player.x + 'px';
@@ -801,10 +674,18 @@
     }
 
     function gameLoop() {
+      if (gameState === 'game_over') {
+        drawGameOver();
+        return;
+      }
       if (gameState !== 'walking') return;
       updateWind();
       updateParticles();
       updatePlayer();
+      if (gameState === 'game_over') {
+        drawGameOver();
+        return;
+      }
       drawAll();
       if (dist(player, dest) <= TRIGGER_DIST) {
         startDialogue();
@@ -814,12 +695,29 @@
     }
 
     // ── TRANSIÇÕES DE ESTADO ──────────────────────────────────────────────────
+    function resetGame() {
+      const stage = document.getElementById('vn-stage');
+      const W = stage.clientWidth;
+      const H = stage.clientHeight;
+      player.x = W * 0.15;
+      player.y = H * 0.50;
+      dest.x   = W * 0.75;
+      dest.y   = H * 0.50;
+      applyPlayerPos();
+      applyDestPos();
+      boatAngle  = Math.atan2(dest.y - player.y, dest.x - player.x);
+      speed      = 0;
+      motorState = 'neutral';
+      wind.angle       = Math.PI / 4;
+      wind.targetAngle = Math.PI / 4;
+      wind.changeTimer = 0;
+      initParticles();
+    }
+
     function startGame() {
       els.startScreen.style.display = 'none';
       els.map.style.display = 'block';
-      initMap();
-      initParticles();
-      boatAngle = Math.atan2(dest.y - player.y, dest.x - player.x);
+      resetGame();
       gameState = 'walking';
       rafId = requestAnimationFrame(gameLoop);
     }
@@ -836,10 +734,12 @@
     }
 
     function endVN() {
-      gameState = 'end';
       stopBlinkCycle();
       els.scene.style.display = 'none';
-      els.endScreen.style.display = 'flex';
+      els.scene.style.opacity = '0';
+      resetGame();
+      els.startScreen.style.display = 'flex';
+      gameState = 'start';
     }
 
     // ── MOTOR VN ──────────────────────────────────────────────────────────────
@@ -1000,9 +900,20 @@
         return;
       }
 
+      if (gameState === 'game_over') {
+        if (['Enter', 'Space'].includes(e.code)) {
+          e.preventDefault();
+          resetGame();
+          els.map.style.display = 'none';
+          els.startScreen.style.display = 'flex';
+          gameState = 'start';
+        }
+        return;
+      }
+
       if (gameState === 'walking') {
         if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',
-             'KeyQ','KeyW','KeyA','KeyD'].includes(e.code)) {
+             'KeyW','KeyS','KeyA','KeyD'].includes(e.code)) {
           e.preventDefault();
         }
         return;
