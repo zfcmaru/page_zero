@@ -312,92 +312,8 @@
 
   </div>
 
+  <script src="story.js"></script>
   <script>
-    // ── SCRIPT DA HISTÓRIA (grafo de nós) ─────────────────────────────────────
-    const SCRIPT = {
-      s01: {
-        speaker: "",
-        text: "...",
-        bg: "../art/Background.png",
-        sprite: "neutral",
-        next: "s02"
-      },
-      s02: {
-        speaker: "Player",
-        text: "Hey... have you seen a girl around here? Her name's Mika. My sister.",
-        sprite: "neutral",
-        next: "s03"
-      },
-      s03: {
-        speaker: "Kanon",
-        text: "Mika? Doesn't ring a bell.",
-        sprite: "neutral",
-        next: "s04"
-      },
-      s04: {
-        speaker: "Kanon",
-        text: "I'm Kanon, by the way. Fitness content creator. I basically live at this pier.",
-        sprite: "neutral",
-        next: "s05"
-      },
-      s05: {
-        speaker: "Player",
-        text: "Right. I'm just passing through, looking for her.",
-        sprite: "neutral",
-        next: "s06"
-      },
-      s06: {
-        speaker: "Kanon",
-        text: "Well, while you wait — come windsurfing with me. Wind's perfect right now.",
-        sprite: "neutral",
-        next: "choice_01"
-      },
-
-      // Branch YES
-      choice_yes: {
-        speaker: "Player",
-        text: "Sure. I've got time.",
-        sprite: "neutral",
-        next: "s_yes_end"
-      },
-      s_yes_end: {
-        speaker: "Kanon",
-        text: "Let's go then.",
-        sprite: "neutral",
-        next: "END"
-      },
-
-      // Branch NO
-      choice_no: {
-        speaker: "Player",
-        text: "I'd rather not.",
-        sprite: "angry",
-        next: "s_no_end"
-      },
-      s_no_end: {
-        speaker: "Kanon",
-        text: "You're so boring!",
-        sprite: "angry",
-        next: "END"
-      }
-    };
-
-    const CHOICES = {
-      choice_01: {
-        options: [
-          { label: "Sure, I've got time.",  next: "choice_yes" },
-          { label: "I'd rather not.",       next: "choice_no"  }
-        ]
-      }
-    };
-
-    const SPRITES = {
-      neutral:   "../art/Girl_neutral.png",
-      semi_rest: "../art/Girl_semi_rest.png",
-      rest:      "../art/Girl_rest.png",
-      angry:     "../art/Girl_angry.png"
-    };
-
     // ── ESTADO ────────────────────────────────────────────────────────────────
     let gameState      = 'start';
     let currentBeatId  = null;
@@ -580,19 +496,23 @@
         els.background.style.backgroundImage = `url(${beat.bg})`;
       }
 
-      // Sprite e blink
-      if (beat.sprite === 'angry') {
-        stopBlinkCycle();
-        setSprite('angry');
-      } else {
-        if (!isBlinking) startBlinkCycle();
+      // Sprite e blink (só troca se o nó definir sprite)
+      if (beat.sprite) {
+        if (beat.sprite === 'angry') {
+          stopBlinkCycle();
+          setSprite('angry');
+        } else {
+          if (!isBlinking) startBlinkCycle();
+        }
       }
 
-      // Nome
-      if (beat.speaker) {
-        els.nameBox.textContent = beat.speaker;
+      // Nome e cor via CHARACTERS
+      if (beat.speaker && CHARACTERS[beat.speaker]) {
+        const char = CHARACTERS[beat.speaker];
+        els.nameBox.textContent = char.name;
+        els.nameBox.style.color = char.color;
         els.nameBox.style.visibility = 'visible';
-      } else {
+      } else if (beat.speaker === "") {
         els.nameBox.textContent = '';
         els.nameBox.style.visibility = 'hidden';
       }
