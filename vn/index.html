@@ -310,7 +310,7 @@
     </div>
   </nav>
 
-  <div id="vn-stage">
+  <div id="vn-stage" tabindex="-1">
 
     <!-- Tela inicial -->
     <div id="vn-start-screen">
@@ -408,6 +408,34 @@
       dialogueBox:     document.getElementById('dialogue-box'),
       choiceContainer: document.getElementById('choice-container'),
     };
+
+    // ── AUDIO ─────────────────────────────────────────────────────────────────
+    let audioCtx = null;
+
+    function getAudioCtx() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      return audioCtx;
+    }
+
+    function playTypeBeep() {
+      try {
+        const ctx = getAudioCtx();
+        if (ctx.state === 'suspended') ctx.resume();
+        const osc  = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = 310 + Math.random() * 50;
+        osc.type = 'square';
+        const t = ctx.currentTime;
+        gain.gain.setValueAtTime(0.07, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.04);
+        osc.start(t);
+        osc.stop(t + 0.04);
+      } catch (err) {}
+    }
 
     // ── PRELOAD ───────────────────────────────────────────────────────────────
     (function preloadAssets() {
@@ -690,6 +718,9 @@
       els.map.style.display = 'block';
       resetGame();
       gameState = 'walking';
+      const stage = document.getElementById('vn-stage');
+      stage.focus({ preventScroll: true });
+      getAudioCtx();
       rafId = requestAnimationFrame(gameLoop);
     }
 
@@ -764,7 +795,11 @@
       let i = 0;
       clearInterval(vnTypeTimer);
       vnTypeTimer = setInterval(() => {
-        els.dialogText.textContent += text[i];
+        const char = text[i];
+        els.dialogText.textContent += char;
+        if (char && char.trim() !== '') {
+          playTypeBeep();
+        }
         i++;
         if (i >= text.length) {
           clearInterval(vnTypeTimer);
@@ -848,7 +883,7 @@
       advance();
     }, { passive: false });
 
-    document.addEventListener('keydown', function(e) {
+    function handleKeyDown(e) {
       keys[e.code] = true;
 
       if (gameState === 'start') {
@@ -903,11 +938,14 @@
           advance();
         }
       }
-    });
+    }
 
-    document.addEventListener('keyup', function(e) {
+    function handleKeyUp(e) {
       keys[e.code] = false;
-    });
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keyup',   handleKeyUp);
   </script>
 
 </body>
