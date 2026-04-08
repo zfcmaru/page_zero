@@ -294,37 +294,6 @@
       #dialogue-text { font-size: 0.85rem; }
     }
 
-    /* ── TOUCH CONTROLS ───────────────────────────────── */
-    #touch-controls {
-      position: absolute;
-      bottom: 3rem;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 2rem;
-      z-index: 10;
-      pointer-events: auto;
-    }
-
-    .touch-btn {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      border: 2px solid rgba(255,255,255,0.3);
-      background: rgba(255,255,255,0.08);
-      color: rgba(255,255,255,0.6);
-      font-size: 1.4rem;
-      cursor: pointer;
-      user-select: none;
-      -webkit-user-select: none;
-      touch-action: none;
-    }
-
-    .touch-btn:active {
-      background: rgba(255,255,255,0.2);
-      border-color: rgba(255,255,255,0.6);
-    }
-
     .choice-btn--active {
       background: rgba(90, 53, 171, 0.5);
       border-color: #a07de0;
@@ -355,10 +324,6 @@
       <div id="player"></div>
       <div id="destination"></div>
       <div id="map-hint">← → helm · W S motor · reach the marker</div>
-      <div id="touch-controls">
-        <button id="btn-left"  class="touch-btn">◄</button>
-        <button id="btn-right" class="touch-btn">►</button>
-      </div>
     </div>
 
     <!-- Cena VN -->
@@ -443,6 +408,12 @@
       dialogueBox:     document.getElementById('dialogue-box'),
       choiceContainer: document.getElementById('choice-container'),
     };
+
+    // ── PRELOAD ───────────────────────────────────────────────────────────────
+    (function preloadAssets() {
+      Object.values(SPRITES).forEach(src => { const i = new Image(); i.src = src; });
+      Object.values(SCRIPT).forEach(node => { if (node.bg) { const i = new Image(); i.src = node.bg; } });
+    })();
 
     // ── SPRITES ───────────────────────────────────────────────────────────────
     function setSprite(name) {
@@ -597,13 +568,13 @@
       ctx.font = '11px monospace';
       ctx.fillStyle = col;
       ctx.textAlign = 'left';
-      ctx.fillText('[ MOTOR: ' + motorState.toUpperCase() + ' ]', 16, H - 16);
+      ctx.fillText('[ MOTOR: ' + motorState.toUpperCase() + ' ]', 16, H - 48);
 
       const segments = 5;
       const filled = Math.round((Math.abs(speed) / MAX_SPEED) * segments);
       for (let i = 0; i < segments; i++) {
         ctx.fillStyle = i < filled ? col : 'rgba(255,255,255,0.12)';
-        ctx.fillRect(16 + i * 16, H - 36, 12, 4);
+        ctx.fillRect(16 + i * 16, H - 68, 12, 4);
       }
     }
 
@@ -876,18 +847,6 @@
       e.preventDefault();
       advance();
     }, { passive: false });
-
-    const btnLeft  = document.getElementById('btn-left');
-    const btnRight = document.getElementById('btn-right');
-
-    btnLeft.addEventListener('touchstart',  e => { e.preventDefault(); keys['ArrowLeft']  = true;  }, { passive: false });
-    btnLeft.addEventListener('touchend',    e => { e.preventDefault(); keys['ArrowLeft']  = false; }, { passive: false });
-    btnRight.addEventListener('touchstart', e => { e.preventDefault(); keys['ArrowRight'] = true;  }, { passive: false });
-    btnRight.addEventListener('touchend',   e => { e.preventDefault(); keys['ArrowRight'] = false; }, { passive: false });
-    btnLeft.addEventListener('mousedown',  () => keys['ArrowLeft']  = true);
-    btnLeft.addEventListener('mouseup',    () => keys['ArrowLeft']  = false);
-    btnRight.addEventListener('mousedown', () => keys['ArrowRight'] = true);
-    btnRight.addEventListener('mouseup',   () => keys['ArrowRight'] = false);
 
     document.addEventListener('keydown', function(e) {
       keys[e.code] = true;
