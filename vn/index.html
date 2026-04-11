@@ -390,8 +390,8 @@
     let speed = 0;
     const ACCELERATION = 0.15;
     const MAX_SPEED    = 4.0;
-    const DRAG         = 0.92;
-    const WIND_FORCE   = 0.08;
+    const DRAG         = 0.985;
+    const WIND_FORCE   = 0.35;
 
     // ── ELEMENTOS ─────────────────────────────────────────────────────────────
     const els = {
@@ -620,15 +620,22 @@
       if (next.motorState === 'forward')
         next.speed = Math.min(next.speed + ACCELERATION, MAX_SPEED);
       else if (next.motorState === 'reverse')
-        next.speed = Math.max(next.speed - ACCELERATION, -MAX_SPEED * 0.6);
+        next.speed = Math.max(next.speed - ACCELERATION, -MAX_SPEED * 0.4);
       else
         next.speed = next.speed * DRAG;
 
       const windX = Math.cos(next.windAngle) * WIND_FORCE;
       const windY = Math.sin(next.windAngle) * WIND_FORCE;
 
-      next.x = state.x + Math.cos(next.heading) * next.speed + windX;
-      next.y = state.y + Math.sin(next.heading) * next.speed + windY;
+      const perpX = -Math.sin(next.heading);
+      const perpY =  Math.cos(next.heading);
+      const windDot = Math.cos(next.windAngle) * perpX + Math.sin(next.windAngle) * perpY;
+      const DRIFT_FORCE = 0.12;
+      const driftX = perpX * windDot * DRIFT_FORCE;
+      const driftY = perpY * windDot * DRIFT_FORCE;
+
+      next.x = state.x + Math.cos(next.heading) * next.speed + windX + driftX;
+      next.y = state.y + Math.sin(next.heading) * next.speed + windY + driftY;
 
       return next;
     }
