@@ -4,7 +4,7 @@ Project context for Claude Code working in this repo.
 
 ## What this is
 
-`page_zero` is Felsal / ZFC Works' personal site and experimental playground, deployed via GitHub Pages at `zfcmaru.github.io/page_zero`. It is a static site — plain HTML / CSS / vanilla JS, no build step, no framework, no bundler. Anything committed to `main` goes live in a few minutes.
+`page_zero` is ZFC Works' personal site and experimental playground, deployed via GitHub Pages at `zfcmaru.github.io/page_zero`. It is a static site — plain HTML / CSS / vanilla JS, no build step, no framework, no bundler. Anything committed to `main` goes live in a few minutes.
 
 The main experiment inside this repo is **Ocean Park**, a browser-based Visual Novel with a sailing minigame, living at `vn/`. It uses the author's own illustrations and follows a strict PC-98 / 90s Japanese console aesthetic.
 
