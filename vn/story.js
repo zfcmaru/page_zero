@@ -60,6 +60,20 @@ const SCRIPT = {
     next: "choice_01"
   },
 
+  // Minigame reaction beats
+  minigame_done: {
+    speaker: "player",
+    text: "...there. Wasn't so bad.",
+    sprite: "neutral",
+    next: "minigame_reaction"
+  },
+  minigame_reaction: {
+    speaker: "player",
+    text: "The wind's picking up. Anyway — about Mika.",
+    sprite: "neutral",
+    next: "choice_yes"
+  },
+
   // Branch YES
   choice_yes: {
     speaker: "player",
@@ -93,7 +107,7 @@ const SCRIPT = {
 const CHOICES = {
   choice_01: {
     options: [
-      { label: "Sure, I've got time.", next: "choice_yes" },
+      { label: "Sure, I've got time.", next: "MINIGAME_SAIL" },
       { label: "I'd rather not.",      next: "choice_no"  }
     ]
   }
