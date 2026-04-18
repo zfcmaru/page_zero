@@ -1,8 +1,10 @@
+// ── INPUT GLOBAL ──────────────────────────────────────────────────────────
+const keys = {};
+
 // ── ELEMENTOS ─────────────────────────────────────────────────────────────
 const els = {
   startScreen:       document.getElementById('vn-start-screen'),
-  map:               document.getElementById('vn-map'),
-  playerEl:          document.getElementById('player'),
+  sceneSelectPanel:  document.getElementById('scene-select-panel'),
   scene:             document.getElementById('vn-scene'),
   background:        document.getElementById('vn-background'),
   charImg:           document.getElementById('char-img'),
@@ -28,7 +30,7 @@ const els = {
 function startGame() {
   els.startScreen.style.display = 'none';
   getAudioCtx();
-  enterHub();
+  enterSceneSelect();
 }
 
 // ── EVENTOS ───────────────────────────────────────────────────────────────
@@ -55,10 +57,20 @@ function handleKeyDown(e) {
     return;
   }
 
-  if (gameState.phase === 'hub') {
-    if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',
-         'KeyW','KeyS','KeyA','KeyD'].includes(e.code)) {
+  if (gameState.phase === 'scene-select') {
+    if (e.code === 'ArrowUp') {
       e.preventDefault();
+      sceneSelectIndex = (sceneSelectIndex - 1 + sceneSelectIds.length) % sceneSelectIds.length;
+      updateSceneSelectHighlight();
+    }
+    if (e.code === 'ArrowDown') {
+      e.preventDefault();
+      sceneSelectIndex = (sceneSelectIndex + 1) % sceneSelectIds.length;
+      updateSceneSelectHighlight();
+    }
+    if (['Enter', 'Space'].includes(e.code)) {
+      e.preventDefault();
+      confirmSceneSelect(sceneSelectIds[sceneSelectIndex]);
     }
     return;
   }
