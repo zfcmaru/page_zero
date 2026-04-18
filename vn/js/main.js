@@ -24,38 +24,11 @@ const els = {
   Object.values(SCRIPT).forEach(node => { if (node.bg) { const i = new Image(); i.src = node.bg; } });
 })();
 
-// ── TRANSIÇÕES DE ESTADO ──────────────────────────────────────────────────
+// ── ENTRADA DO JOGO ───────────────────────────────────────────────────────
 function startGame() {
   els.startScreen.style.display = 'none';
-  els.map.style.display = 'block';
-  resetGame();
-  gameState = 'hub';
-  const stage = document.getElementById('vn-stage');
-  stage.focus({ preventScroll: true });
   getAudioCtx();
-  rafId = requestAnimationFrame(gameLoop);
-}
-
-function startDialogue(scenarioId) {
-  scenarioId = scenarioId || 'kanon_beach';
-  currentScenarioId = scenarioId;
-  gameState = 'dialogue';
-  cancelAnimationFrame(rafId);
-  els.map.style.display = 'none';
-  els.scene.style.display = 'flex';
-  void els.scene.offsetWidth;
-  els.scene.style.opacity = '1';
-  startBlinkCycle();
-  showBeat(SCENARIOS[scenarioId].entryBeat);
-}
-
-function endVN() {
-  stopBlinkCycle();
-  els.scene.style.display = 'none';
-  els.scene.style.opacity = '0';
-  resetGame();
-  els.startScreen.style.display = 'flex';
-  gameState = 'start';
+  enterHub();
 }
 
 // ── EVENTOS ───────────────────────────────────────────────────────────────
@@ -74,7 +47,7 @@ els.dialogueBox.addEventListener('touchstart', function(e) {
 function handleKeyDown(e) {
   keys[e.code] = true;
 
-  if (gameState === 'start') {
+  if (gameState.phase === 'start') {
     if (['Space', 'Enter'].includes(e.code)) {
       e.preventDefault();
       startGame();
@@ -82,7 +55,7 @@ function handleKeyDown(e) {
     return;
   }
 
-  if (gameState === 'hub') {
+  if (gameState.phase === 'hub') {
     if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',
          'KeyW','KeyS','KeyA','KeyD'].includes(e.code)) {
       e.preventDefault();
@@ -90,7 +63,7 @@ function handleKeyDown(e) {
     return;
   }
 
-  if (gameState === 'minigame') {
+  if (gameState.phase === 'minigame') {
     if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',
          'KeyW','KeyS','KeyA','KeyD'].includes(e.code)) {
       e.preventDefault();
@@ -98,7 +71,7 @@ function handleKeyDown(e) {
     return;
   }
 
-  if (gameState === 'dialogue' && isChoosing) {
+  if (gameState.phase === 'choosing') {
     const choice = CHOICES[currentChoiceId];
     if (e.code === 'ArrowUp') {
       e.preventDefault();
@@ -117,7 +90,7 @@ function handleKeyDown(e) {
     return;
   }
 
-  if (gameState === 'dialogue') {
+  if (gameState.phase === 'dialogue') {
     if (['Space', 'Enter', 'ArrowRight'].includes(e.code)) {
       e.preventDefault();
       advance();

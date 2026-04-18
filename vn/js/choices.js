@@ -1,11 +1,9 @@
 // ── CHOICE UI ─────────────────────────────────────────────────────────────
-let isChoosing      = false;
 let choiceIndex     = 0;
 let currentChoiceId = null;
 
 function showChoice(choiceId) {
   currentChoiceId = choiceId;
-  isChoosing = true;
   choiceIndex = 0;
   const choice = CHOICES[choiceId];
 
@@ -36,6 +34,8 @@ function showChoice(choiceId) {
 
   els.choiceContainer.classList.add('is-active');
   els.choicePlaceholder.style.display = 'none';
+
+  enterChoosing(choiceId);
 }
 
 function updateChoiceHighlight() {
@@ -49,6 +49,6 @@ function confirmChoice(choice, index) {
   els.choiceContainer.classList.remove('is-active');
   els.choiceContainer.innerHTML = '';
   els.choicePlaceholder.style.display = '';
-  isChoosing = false;
+  gameState.phase = 'dialogue';
   showBeat(choice.options[index].next);
 }

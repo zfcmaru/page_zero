@@ -107,7 +107,7 @@ function drawAll() {
 }
 
 function drawHUD(ctx, W, H) {
-  if (gameState !== 'hub') return;
+  if (gameState.phase !== 'hub') return;
   const motorColors = { forward: '#f5c542', neutral: '#fff', reverse: '#fb923c' };
   const col = motorColors[motorState];
 
@@ -169,7 +169,7 @@ function updatePlayer() {
 }
 
 function gameLoop() {
-  if (gameState !== 'hub') return;
+  if (gameState.phase !== 'hub') return;
   updateWind();
   updateParticles();
   updatePlayer();

@@ -67,7 +67,7 @@ function miniDraw() {
 }
 
 function miniLoop() {
-  if (gameState !== 'minigame') return;
+  if (gameState.phase !== 'minigame') return;
 
   const input = {
     left:    !!(keys['ArrowLeft']  || keys['KeyA']),
@@ -93,16 +93,15 @@ function miniLoop() {
   const dx = mini.state.x - mini.dest.x;
   const dy = mini.state.y - mini.dest.y;
   if (Math.hypot(dx, dy) < 16) {
-    endMinigame();
+    exitMinigame(true);
     return;
   }
 
   mini.rafId = requestAnimationFrame(miniLoop);
 }
 
-function startMinigame() {
-  gameState = 'minigame';
-
+// UI setup — called by enterMinigame() in state.js
+function doStartMinigame() {
   els.choiceContainer.classList.remove('is-active');
   els.choiceContainer.innerHTML = '';
   els.choicePlaceholder.style.display = 'none';
@@ -138,15 +137,4 @@ function startMinigame() {
   stage.focus({ preventScroll: true });
 
   mini.rafId = requestAnimationFrame(miniLoop);
-}
-
-function endMinigame() {
-  cancelAnimationFrame(mini.rafId);
-  mini.rafId = null;
-
-  els.minigamePanel.classList.remove('is-active');
-  els.choicePlaceholder.style.display = '';
-
-  gameState = 'dialogue';
-  showBeat('minigame_done');
 }

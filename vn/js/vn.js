@@ -1,14 +1,14 @@
 // ── ESTADO VN ─────────────────────────────────────────────────────────────
-let currentBeatId  = null;
-let isBlinking     = false;
-let blinkTimer     = null;
-let vnTyping       = false;
-let vnTypeTimer    = null;
+let currentBeatId = null;
+let isBlinking    = false;
+let blinkTimer    = null;
+let vnTyping      = false;
+let vnTypeTimer   = null;
 
 // ── SPRITES ───────────────────────────────────────────────────────────────
 function setSprite(name) {
-  const charId = (currentScenarioId && SCENARIOS[currentScenarioId])
-    ? SCENARIOS[currentScenarioId].character
+  const charId = (gameState.currentScenario && SCENARIOS[gameState.currentScenario])
+    ? SCENARIOS[gameState.currentScenario].character
     : 'kanon';
   els.charImg.src = SPRITES[charId][name];
 }
@@ -45,13 +45,13 @@ function stopBlinkCycle() {
 
 // ── MOTOR VN ──────────────────────────────────────────────────────────────
 function showBeat(id) {
-  if (id === 'END') { endVN(); return; }
+  if (id === 'END') { endScenario(); return; }
 
-  const activeScenario = currentScenarioId
-    ? SCENARIOS[currentScenarioId]
+  const activeScenario = gameState.currentScenario
+    ? SCENARIOS[gameState.currentScenario]
     : null;
   if (activeScenario && id === activeScenario.minigame.triggerBeat) {
-    startMinigame();
+    enterMinigame(currentChoiceId);
     return;
   }
 
@@ -113,8 +113,7 @@ function startTypewriter(text) {
 }
 
 function advance() {
-  if (gameState !== 'dialogue') return;
-  if (isChoosing) return;
+  if (gameState.phase !== 'dialogue') return;
 
   if (vnTyping) {
     clearInterval(vnTypeTimer);
