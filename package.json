@@ -1,0 +1,13 @@
+{
+  "name": "page_zero",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Felsal / ZFC Works personal site and Ocean Park VN",
+  "scripts": {
+    "test": "node vn/physics.test.js",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
+}
