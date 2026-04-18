@@ -1,5 +1,5 @@
 // ── ESTADO GLOBAL ─────────────────────────────────────────────────────────
-// phase: 'start' | 'hub' | 'dialogue' | 'choosing' | 'minigame'
+// phase: 'start' | 'scene-select' | 'dialogue' | 'choosing' | 'minigame'
 const gameState = {
   phase: 'start',
   currentScenario: null,          // id do cenário ativo
@@ -8,24 +8,21 @@ const gameState = {
 
 // ── TRANSIÇÕES ────────────────────────────────────────────────────────────
 
-function enterHub() {
-  gameState.phase = 'hub';
+function enterSceneSelect() {
+  gameState.phase = 'scene-select';
   gameState.currentScenario = null;
   els.scene.classList.remove('is-fullscreen');
   els.scene.style.display = 'none';
   els.scene.style.opacity = '0';
-  els.map.style.display = 'block';
-  resetGame();
+  showSceneSelect();
   const stage = document.getElementById('vn-stage');
   stage.focus({ preventScroll: true });
-  rafId = requestAnimationFrame(gameLoop);
 }
 
 function enterDialogue(scenarioId) {
   gameState.currentScenario = scenarioId;
   gameState.phase = 'dialogue';
-  cancelAnimationFrame(rafId);
-  els.map.style.display = 'none';
+  els.sceneSelectPanel.style.display = 'none';
   els.scene.classList.add('is-fullscreen');
   els.scene.style.display = 'flex';
   void els.scene.offsetWidth;
@@ -57,5 +54,5 @@ function exitMinigame(success) {
 
 function endScenario() {
   stopBlinkCycle();
-  enterHub();
+  enterSceneSelect();
 }
