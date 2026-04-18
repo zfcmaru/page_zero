@@ -45,10 +45,7 @@ function enterMinigame(fromChoiceId) {
 }
 
 function exitMinigame(success) {
-  cancelAnimationFrame(mini.rafId);
-  mini.rafId = null;
-  els.minigamePanel.classList.remove('is-active');
-  els.choicePlaceholder.style.display = '';
+  cleanupMinigame();
   gameState.phase = 'dialogue';
   const scenario = SCENARIOS[gameState.currentScenario];
   if (success) {
