@@ -68,6 +68,10 @@ function handleKeyDown(e) {
          'KeyW','KeyS','KeyA','KeyD'].includes(e.code)) {
       e.preventDefault();
     }
+    if (e.code === 'KeyQ') {
+      e.preventDefault();
+      exitMinigame(false);
+    }
     return;
   }
 
