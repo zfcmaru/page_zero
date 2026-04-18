@@ -1,44 +1,14 @@
 // vn/physics.test.js
 // Run with: node vn/physics.test.js
 
-const ROTATION_SPEED = 0.045;
-const ACCELERATION   = 0.15;
-const MAX_SPEED      = 4.0;
-const DRAG           = 0.985;
-const WIND_FORCE     = 0.35;
-
-function tickPhysics(state, input) {
-  const next = Object.assign({}, state);
-
-  if (input.left)  next.heading -= ROTATION_SPEED;
-  if (input.right) next.heading += ROTATION_SPEED;
-
-  if (input.forward)      next.motorState = 'forward';
-  else if (input.reverse) next.motorState = 'reverse';
-  else                    next.motorState = 'neutral';
-
-  if (next.motorState === 'forward')
-    next.speed = Math.min(next.speed + ACCELERATION, MAX_SPEED);
-  else if (next.motorState === 'reverse')
-    next.speed = Math.max(next.speed - ACCELERATION, -MAX_SPEED * 0.4);
-  else
-    next.speed = next.speed * DRAG;
-
-  const windX = Math.cos(next.windAngle) * WIND_FORCE;
-  const windY = Math.sin(next.windAngle) * WIND_FORCE;
-
-  const perpX = -Math.sin(next.heading);
-  const perpY =  Math.cos(next.heading);
-  const windDot = Math.cos(next.windAngle) * perpX + Math.sin(next.windAngle) * perpY;
-  const DRIFT_FORCE = 0.12;
-  const driftX = perpX * windDot * DRIFT_FORCE;
-  const driftY = perpY * windDot * DRIFT_FORCE;
-
-  next.x = state.x + Math.cos(next.heading) * next.speed + windX + driftX;
-  next.y = state.y + Math.sin(next.heading) * next.speed + windY + driftY;
-
-  return next;
-}
+const {
+  tickPhysics,
+  ROTATION_SPEED,
+  ACCELERATION,
+  MAX_SPEED,
+  DRAG,
+  WIND_FORCE
+} = require('./js/physics.js');
 
 // ── BASELINE TESTS ────────────────────────────────────────────────────────
 
