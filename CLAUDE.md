@@ -8,24 +8,43 @@ Project context for Claude Code working in this repo.
 
 The main experiment inside this repo is **Ocean Park**, a browser-based Visual Novel with a sailing minigame, living at `vn/`. It uses the author's own illustrations and follows a strict PC-98 / 90s Japanese console aesthetic.
 
+## Privacy — non-negotiable
+
+The author's presence in this repo is via **social media handles only** (itch.io, Pixiv, Reddit, TikTok, X, GitHub). Never commit:
+
+- Personal email, phone, address, real name beyond what is already public.
+- API keys, tokens, or secrets — Anthropic, OpenAI, GitHub PATs, etc. Even example placeholders must be clearly fictional (`sk-ant-xxx`, `TOKEN_HERE`).
+- Anything that could be used to contact the author directly outside the listed social channels.
+
+Audit before each commit:
+
+```bash
+grep -rinE "(felipessalvador|@gmail|@googlemail|sk-ant|api[_-]?key)" --include="*.html" --include="*.js" --include="*.css" --include="*.md" --include="*.json" . 2>/dev/null | grep -v node_modules
+```
+
+Expected result: empty. If anything matches, fix before committing.
+
 ## Repo layout
 
 ```
 page_zero/
-├── index.html              # landing page
-├── assets/css/             # shared CSS for the site
-├── art/                    # site illustrations
-├── blog/                   # blog posts
-└── vn/                     # Ocean Park VN
-    ├── index.html          # VN engine (HTML + inline CSS + inline JS)
+├── index.html              # landing — hub of experiments
+├── assets/css/style.css    # shared CSS — PC-98 tokens as :root vars
+├── art/                    # site illustrations (never modify)
+├── blog/                   # blog posts + index
+├── experiments/            # future browser experiments — see experiments/README.md
+└── vn/                     # Ocean Park VN (canonical reference for visual grammar)
+    ├── index.html          # VN engine entry
+    ├── js/                 # modular engine: vn, state, choices, minigame, physics, scene-select, audio, main
     ├── story.js            # narrative data: SCRIPT, CHOICES, CHARACTERS, SPRITES
+    ├── scenarios.js        # scene-select entries
     ├── physics.test.js     # Node test for boat physics
     └── art/                # VN sprites and backgrounds
 ```
 
 ## Visual identity — non-negotiable
 
-Ocean Park's interface follows a PC-98 / console retrô look. Do not drift from this palette or break the grammar:
+The whole site follows a PC-98 / console retrô look. Ocean Park (`vn/`) is the canonical reference; landing and blog inherit via shared CSS tokens in `assets/css/style.css`. Do not drift from this palette or break the grammar:
 
 - Background: `#000`
 - Borders: `2px solid #fff`
@@ -66,9 +85,19 @@ Tests must pass before any commit that touches physics. See `.husky/pre-commit`.
 ## Conventions
 
 - Commit messages in English, imperative, lowercase, short. Example: `refine VN interface: drop character, enlarge name box`.
-- Branch names: `claude/<feature-slug>` when Claude Code is authoring.
-- Prefer `str_replace` for surgical edits over full file rewrites when refining existing code.
+- Branch names: `claude/<feature-slug>` when Claude Code is authoring; `refact` / similar for broader cross-cutting work.
+- Prefer surgical edits over full file rewrites when refining existing code.
 - Do not introduce dependencies (npm packages) unless explicitly asked. Husky is the only dev dependency.
+
+## Workflow with Claude Code
+
+This repo is built to be Claude-Code-friendly. Common patterns:
+
+- **Authoring scenes**: edit `vn/story.js` and `vn/scenarios.js` by hand. Do not reformat; respect the existing data shape (`SCRIPT`, `CHOICES`, `CHARACTERS`, `SPRITES`). The author edits these directly; Claude only proposes diffs.
+- **New experiment**: `mkdir experiments/<slug>`, drop an `index.html` that imports `../../assets/css/style.css` for the PC-98 tokens. See `experiments/README.md`.
+- **No LLM in runtime**: this site never calls an LLM API from the browser. Claude is a dev/authoring assistant only — keeps the site cost-free, key-free, and offline-deployable.
+- **Physics changes**: always run `node vn/physics.test.js` before committing. Husky enforces this via `.husky/pre-commit`.
+- **Visual changes**: stay within the tokens in `assets/css/style.css`. The canonical reference is `vn/assets/css/vn.css` — copy patterns from there if a new component needs UI.
 
 ## Deploy
 

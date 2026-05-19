@@ -11,7 +11,6 @@ const gameState = {
 function enterSceneSelect() {
   gameState.phase = 'scene-select';
   gameState.currentScenario = null;
-  els.scene.classList.remove('is-fullscreen');
   els.scene.style.display = 'none';
   els.scene.style.opacity = '0';
   showSceneSelect();
@@ -23,7 +22,6 @@ function enterDialogue(scenarioId) {
   gameState.currentScenario = scenarioId;
   gameState.phase = 'dialogue';
   els.sceneSelectPanel.style.display = 'none';
-  els.scene.classList.add('is-fullscreen');
   els.scene.style.display = 'flex';
   void els.scene.offsetWidth;
   els.scene.style.opacity = '1';
