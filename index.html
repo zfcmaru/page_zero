@@ -1,217 +1,113 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zfcmaru</title>
+  <title>Zfcmaru — page_zero</title>
   <link rel="stylesheet" href="assets/css/style.css">
-  <style>
-    /* ── Tab Bar ── */
-    .tab-bar {
-      border-bottom: 1px solid var(--border);
-      background-color: var(--bg);
-    }
-
-    .tab-bar .container {
-      display: flex;
-    }
-
-    .tab-btn {
-      font-family: 'Inter', sans-serif;
-      font-size: 0.85rem;
-      letter-spacing: 0.03em;
-      padding: 0.75rem 0;
-      margin-right: 2rem;
-      background: none;
-      border: none;
-      border-bottom: 2px solid transparent;
-      margin-bottom: -1px;
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: color 0.15s;
-    }
-
-    .tab-btn:hover { color: var(--text); }
-
-    .tab-btn.active {
-      color: var(--text);
-      border-bottom-color: var(--accent);
-    }
-
-    /* ── Tab Panels ── */
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
-    #tab-vn.active { display: flex; flex-direction: column; }
-
-    /* ── Presentation: links ── */
-    .links-section {
-      padding: 2.5rem 0;
-    }
-
-    .link-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-    }
-
-    .link-item {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 0.9rem 1.25rem;
-      background: var(--bg-secondary);
-      border: 1px solid var(--border);
-      text-decoration: none;
-      color: var(--text);
-      transition: border-color 0.15s;
-    }
-
-    .link-item:hover {
-      border-color: var(--accent);
-    }
-
-    .link-platform {
-      font-family: 'Inter', sans-serif;
-      font-size: 0.9rem;
-      font-weight: 500;
-      flex: 1;
-    }
-
-    .link-url {
-      font-family: 'Inter', sans-serif;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-
-    .link-arrow {
-      font-family: 'Inter', sans-serif;
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      margin-left: 0.5rem;
-      transition: color 0.15s;
-    }
-
-    .link-item:hover .link-arrow {
-      color: var(--accent);
-    }
-
-    /* ── VN iframe ── */
-    #vn-iframe {
-      width: 100%;
-      border: none;
-      display: block;
-    }
-
-    /* ── VN tab active: no outer scroll, hide footer ── */
-    body.vn-active {
-      overflow: hidden;
-    }
-
-    body.vn-active footer {
-      display: none;
-    }
-
-    @media (max-width: 600px) {
-      .tab-btn { font-size: 0.8rem; }
-      .link-url { display: none; }
-    }
-  </style>
 </head>
 <body>
 
   <nav>
     <div class="container">
       <a href="/" class="site-title">Zfcmaru</a>
+      <a href="blog/">Blog</a>
+      <a href="vn/">VN</a>
     </div>
   </nav>
 
-  <div class="tab-bar">
-    <div class="container">
-      <button class="tab-btn active" data-tab="presentation">Links</button>
-      <button class="tab-btn" data-tab="vn">VN</button>
-    </div>
-  </div>
-
   <main>
+    <div class="container">
 
-    <div id="tab-presentation" class="tab-panel active">
-      <div class="container">
-        <div class="links-section">
-          <div class="link-list">
-            <a href="https://zfcmaru.itch.io/" class="link-item" target="_blank" rel="noopener">
-              <span class="link-platform">itch.io</span>
-              <span class="link-url">zfcmaru.itch.io</span>
-              <span class="link-arrow">→</span>
-            </a>
-            <a href="https://www.pixiv.net/en/users/108114429" class="link-item" target="_blank" rel="noopener">
-              <span class="link-platform">Pixiv</span>
-              <span class="link-url">pixiv.net/en/users/108114429</span>
-              <span class="link-arrow">→</span>
-            </a>
-            <a href="https://www.reddit.com/user/rnar1/" class="link-item" target="_blank" rel="noopener">
-              <span class="link-platform">Reddit</span>
-              <span class="link-url">reddit.com/user/rnar1</span>
-              <span class="link-arrow">→</span>
-            </a>
-            <a href="http://www.tiktok.com/@zfcmaru" class="link-item" target="_blank" rel="noopener">
-              <span class="link-platform">TikTok</span>
-              <span class="link-url">tiktok.com/@zfcmaru</span>
-              <span class="link-arrow">→</span>
-            </a>
-            <a href="https://x.com/zfcmaru" class="link-item" target="_blank" rel="noopener">
-              <span class="link-platform">X</span>
-              <span class="link-url">x.com/zfcmaru</span>
-              <span class="link-arrow">→</span>
-            </a>
-          </div>
-        </div>
+      <div class="hero">
+        <h1>page_zero</h1>
+        <p>Playground de experimentos browser, sem build, sem framework. Aqui mora Ocean Park (visual novel) e o que vier a seguir.</p>
       </div>
-    </div>
 
-    <div id="tab-vn" class="tab-panel">
-      <iframe id="vn-iframe" src="vn/" title="Visual Novel"></iframe>
-    </div>
+      <section>
+        <div class="section-header">
+          <h2>Experiments</h2>
+        </div>
+        <ul class="channel-list" data-nav-group>
+          <li class="channel-item">
+            <a href="vn/">
+              <span class="channel-label">Ocean Park</span>
+              <span class="channel-meta">Visual Novel</span>
+            </a>
+          </li>
+          <li class="channel-item">
+            <a href="blog/">
+              <span class="channel-label">Devlog & notes</span>
+              <span class="channel-meta">Blog</span>
+            </a>
+          </li>
+          <li class="channel-item channel-item--soon">
+            <a href="#" aria-disabled="true" tabindex="-1">
+              <span class="channel-label">Next experiment</span>
+              <span class="channel-meta">Coming soon</span>
+            </a>
+          </li>
+        </ul>
+      </section>
 
+      <section>
+        <div class="section-header">
+          <h2>Channels</h2>
+        </div>
+        <ul class="channel-list" data-nav-group>
+          <li class="channel-item">
+            <a href="https://zfcmaru.itch.io/" target="_blank" rel="noopener">
+              <span class="channel-label">itch.io</span>
+              <span class="channel-meta">zfcmaru.itch.io</span>
+            </a>
+          </li>
+          <li class="channel-item">
+            <a href="https://www.pixiv.net/en/users/108114429" target="_blank" rel="noopener">
+              <span class="channel-label">Pixiv</span>
+              <span class="channel-meta">/users/108114429</span>
+            </a>
+          </li>
+          <li class="channel-item">
+            <a href="https://www.reddit.com/user/rnar1/" target="_blank" rel="noopener">
+              <span class="channel-label">Reddit</span>
+              <span class="channel-meta">u/rnar1</span>
+            </a>
+          </li>
+          <li class="channel-item">
+            <a href="http://www.tiktok.com/@zfcmaru" target="_blank" rel="noopener">
+              <span class="channel-label">TikTok</span>
+              <span class="channel-meta">@zfcmaru</span>
+            </a>
+          </li>
+          <li class="channel-item">
+            <a href="https://x.com/zfcmaru" target="_blank" rel="noopener">
+              <span class="channel-label">X</span>
+              <span class="channel-meta">@zfcmaru</span>
+            </a>
+          </li>
+        </ul>
+      </section>
+
+    </div>
   </main>
 
-  <footer>
-    <div class="container">
-      <p>Zfcmaru</p>
-      <p><a href="https://github.com/zfc14" target="_blank" rel="noopener">GitHub</a></p>
-    </div>
-  </footer>
+  <footer></footer>
 
   <script>
-    // ── Tab Switcher ──────────────────────────────────────────────────────────
-    var tabs   = document.querySelectorAll('.tab-btn');
-    var panels = document.querySelectorAll('.tab-panel');
-
-    tabs.forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        var target = btn.getAttribute('data-tab');
-        tabs.forEach(function(t) { t.classList.remove('active'); });
-        panels.forEach(function(p) { p.classList.remove('active'); });
-        btn.classList.add('active');
-        document.getElementById('tab-' + target).classList.add('active');
-        if (target === 'vn') {
-          document.body.classList.add('vn-active');
-          resizeVNIframe();
-        } else {
-          document.body.classList.remove('vn-active');
+    document.querySelectorAll('[data-nav-group]').forEach(function(group) {
+      var items = Array.from(group.querySelectorAll('a:not([aria-disabled="true"])'));
+      group.addEventListener('keydown', function(e) {
+        var idx = items.indexOf(document.activeElement);
+        if (idx === -1) return;
+        if (e.key === 'ArrowDown' || e.key === 'j') {
+          e.preventDefault();
+          items[(idx + 1) % items.length].focus();
+        } else if (e.key === 'ArrowUp' || e.key === 'k') {
+          e.preventDefault();
+          items[(idx - 1 + items.length) % items.length].focus();
         }
       });
     });
-
-    // ── VN Iframe Height ──────────────────────────────────────────────────────
-    function resizeVNIframe() {
-      var nav    = document.querySelector('nav');
-      var tabBar = document.querySelector('.tab-bar');
-      var iframe = document.getElementById('vn-iframe');
-      iframe.style.height = (window.innerHeight - nav.offsetHeight - tabBar.offsetHeight) + 'px';
-    }
-
-    resizeVNIframe();
-    window.addEventListener('resize', resizeVNIframe);
   </script>
 
 </body>
