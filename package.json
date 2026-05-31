@@ -4,7 +4,7 @@
   "private": true,
   "description": "Felsal / ZFC Works personal site and Ocean Park VN",
   "scripts": {
-    "test": "node vn/physics.test.js",
+    "test": "echo \"no tests — Ocean Park is a Godot web export\" && exit 0",
     "prepare": "husky"
   },
   "devDependencies": {
