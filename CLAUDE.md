@@ -4,7 +4,7 @@ Project context for Claude Code working in this repo.
 
 ## What this is
 
-`page_zero` is ZFC Works' personal site and experimental playground, deployed via GitHub Pages at `zfcmaru.github.io/page_zero`. It is a static site — plain HTML / CSS / vanilla JS, no build step, no framework, no bundler. Anything committed to `main` goes live in a few minutes.
+`page_zero` is ZFC Works' personal site and experimental playground, deployed via GitHub Pages at `zfcmaru.github.io/page_zero`. It is a static site — mostly plain HTML / CSS / vanilla JS, no build step, no framework, no bundler. (The one exception is `vn/`, which is now a precompiled Godot 4 HTML5 export — `.wasm` + `.pck` — not editable JS; see Deploy.) See Deploy for which branch actually publishes.
 
 The main experiment inside this repo is **Ocean Park**, a browser-based Visual Novel with a sailing minigame, living at `vn/`. It uses the author's own illustrations and follows a strict PC-98 / 90s Japanese console aesthetic.
 
@@ -101,4 +101,6 @@ This repo is built to be Claude-Code-friendly. Common patterns:
 
 ## Deploy
 
-GitHub Pages auto-deploys from `main` on merge. Takes 1–5 minutes. No manual step.
+GitHub Pages publishes from the repo's **default branch, `claude/personal-website-setup-Nprfo`** — NOT from `main`. (Confirm under Settings → Pages, or via the `github-pages` deployments, whose `ref` is this branch.) Pushing to `main` does **not** deploy; the established flow is: land changes on `main`, then **merge `main` into the default branch** (the recurring "Merge pull request … from zfcmaru/main"), which triggers the `pages build and deployment` run. Takes 1–5 minutes.
+
+`vn/` is a Godot HTML5 export. It is produced in the separate Godot project at `/Users/felsal/Desktop/game_dev/projects/ocean_park` (`godot --headless --path . --export-release "Web" build/web/index.html`) and copied in — do not hand-edit the files under `vn/`. The export uses **threads off** so no COOP/COEP headers are needed, and a `.nojekyll` at the repo root keeps Pages from touching the output. A `← back` link to the hub is injected via the export's Head Include.
